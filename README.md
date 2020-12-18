@@ -27,3 +27,20 @@ shift object), sheet_id (corresponds to ‘sheet_id’ in shift object);
 This projects consists of two Spring Boot apps:
 * WorkShiftRestEndpoint - endpoint for generating random work shift data
 * ETLJob - Console app to consume the endpoint, transform and load it to the H2 database.
+
+### WorkShiftRestEndpoint
+At boot time, app will randomly generate shift data for the previous week. This data will be served through Shift rest controller. There will be only two rest methods:
+* get - serves all records
+* get/{id} - serves one particular shift
+
+#### Models
+* shift
+
+### ETLJob
+Console app - consumes the endpoint, transform and loads it to the H2 database.
+
+#### Models
+* break
+* allowance
+* award_interpretation
+* shift

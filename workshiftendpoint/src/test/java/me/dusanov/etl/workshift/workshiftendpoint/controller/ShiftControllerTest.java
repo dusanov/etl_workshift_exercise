@@ -38,7 +38,7 @@ class ShiftControllerTest {
 
         this.mockMvc.perform(builder)
                 .andExpect(ok);
-                //TODO: once we're returnig somethig, validate:
+                //TODO: once we're returning something, validate:
                 //.andExpect(jsonPath("$[0].name", containsString("el calafate")));
     }
 
@@ -51,7 +51,7 @@ class ShiftControllerTest {
 
         this.mockMvc.perform(builder)
                 .andExpect(ok);
-                //TODO: once we're returnig somethig, validate:
+                //TODO: once we're returning something, validate:
                 //.andExpect(jsonPath("$[0].name", containsString("el calafate")));
     }
 }

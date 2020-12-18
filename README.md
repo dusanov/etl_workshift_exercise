@@ -2,7 +2,7 @@
 
 ## Abstract
 Task is to collect work shift data from the REST endpoint. The specs for
-the endpoint are here: https://my.tanda.co/api/v2/documentation#shifts
+the endpoint are here: https://my.tanda.co/api/v2/documentation#shifts.
 The endpoint generates random shift data for the previous week. The endpoint just
 returns the data, no need to back it with the database. No need to provide authentication.
 

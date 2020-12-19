@@ -17,8 +17,11 @@ public class ShiftController {
     private final ShiftService service;
 
     @GetMapping
-    public List<Shift> getAll(){
-        return service.getAll();
+    public List<Shift> getAll(@RequestParam(defaultValue = "", required = false) String ids){
+        if (!ids.equals(""))
+            return this.service.getSome(ids);
+        else
+            return service.getAll();
     }
 
     @GetMapping("/{shiftId}")

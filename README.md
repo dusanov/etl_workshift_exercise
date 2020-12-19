@@ -44,3 +44,11 @@ Console app - consumes the endpoint, transform and loads it to the H2 database.
 * allowance
 * award_interpretation
 * shift
+
+#### Startup
+To start and retrive one specific shift object:
+`mvn spring-boot:run -Dspring-boot.run.arguments=1231`
+or
+`mvn package
+java -jar target/etljobapp-0.0.1-SNAPSHOT.jar 2133`
+no args means get all shifts

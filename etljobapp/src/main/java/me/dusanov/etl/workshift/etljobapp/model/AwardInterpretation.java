@@ -30,7 +30,7 @@ public class AwardInterpretation {
         this.to = awardInterpretationDto.getTo();
     }
 
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Integer id;
     // foreign key to shift.id
     private Integer shiftId;

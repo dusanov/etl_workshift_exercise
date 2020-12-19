@@ -112,6 +112,35 @@ class EtljobappApplicationTests {
 	@Transactional
 	void testShiftServiceSave() throws Exception {
 		//sanity check
+		/*
+		assertEquals(((List<Shift>)shiftRepo.findAll()).size(), 0);
+		assertEquals(((List<Break>)breakRepo.findAll()).size(), 0);
+		assertEquals(((List<Allowance>)allowanceRepo.findAll()).size(), 0);
+		assertEquals(((List<AwardInterpretation>)awRepo.findAll()).size(), 0);
+		*/
+		mockServer.expect(ExpectedCount.once(),
+				requestTo(new URI("http://localhost:8080/api/v1/shifts/1")))
+				.andExpect(method(HttpMethod.GET))
+				.andRespond(withStatus(HttpStatus.OK)
+						.contentType(MediaType.APPLICATION_JSON)
+						.body(jsonTester.from(jsonFile).getJson())
+				);
+
+		ResponseEntity<ShiftDto[]> resp = restTemplate.getForEntity("http://localhost:8080/api/v1/shifts/1", ShiftDto[].class);
+		mockServer.verify();
+		assertEquals(resp.getStatusCode(), HttpStatus.OK);
+		assertNotNull(resp.getBody()[0]);
+		shiftService.save(resp.getBody()[0]);
+		assertEquals(((List<Shift>)shiftRepo.findAll()).size(), 1);
+		assertEquals(((List<Break>)breakRepo.findAll()).size(), 1);
+		assertEquals(((List<Allowance>)allowanceRepo.findAll()).size(), 1);
+		assertEquals(((List<AwardInterpretation>)awRepo.findAll()).size(), 4);
+	}
+
+	@Test
+	@Transactional
+	void testRollbackBySavingTwice() throws Exception {
+		//sanity check
 		assertEquals(((List<Shift>)shiftRepo.findAll()).size(), 0);
 		assertEquals(((List<Break>)breakRepo.findAll()).size(), 0);
 		assertEquals(((List<Allowance>)allowanceRepo.findAll()).size(), 0);
@@ -134,5 +163,15 @@ class EtljobappApplicationTests {
 		assertEquals(((List<Break>)breakRepo.findAll()).size(), 1);
 		assertEquals(((List<Allowance>)allowanceRepo.findAll()).size(), 1);
 		assertEquals(((List<AwardInterpretation>)awRepo.findAll()).size(), 4);
+
+		try{
+			shiftService.save(resp.getBody()[0]);
+		} catch (Exception e){
+			assertNotNull(e);
+			assertEquals(((List<Shift>)shiftRepo.findAll()).size(), 1);
+			assertEquals(((List<Break>)breakRepo.findAll()).size(), 1);
+			assertEquals(((List<Allowance>)allowanceRepo.findAll()).size(), 1);
+			assertEquals(((List<AwardInterpretation>)awRepo.findAll()).size(), 4);
+		}
 	}
 }

@@ -38,38 +38,28 @@ public class ShiftService {
     @Autowired private final EntityManager entitymanager;
 
     @Transactional
-    public void save(ShiftDto shiftDto) {
+    public void save(ShiftDto shiftDto) throws Exception {
 
         try {
-            log.info(" === before save new shift");
             Shift shift = new Shift(shiftDto);
-            //shiftRepo.save(shift);
             entitymanager.persist(shift);
-
-            log.info(" --- after save new shift");
-            log.info(" === before save new allowances");
             for (AllowanceDto allowanceDto : shiftDto.getAllowances()) {
                 Allowance allowance = new Allowance(allowanceDto, shift.getId(), shift.getDate(), shift.getTimesheetId());
-                //allowanceRepo.save(allowance);
                 entitymanager.persist(allowance);
             }
-            log.info(" --- after save new allowances");
-
             for (AwardInterpretationDto awardInterpretationDto : shiftDto.getAwardInterpretation()) {
                 AwardInterpretation aw = new AwardInterpretation(awardInterpretationDto, shift.getId(), shift.getDate(), shift.getTimesheetId());
-                //awardInterpretationRepo.save(aw);
                 entitymanager.persist(aw);
             }
 
             for (BreakDto breakDto : shiftDto.getBreaks()) {
                 Break brejk = new Break(breakDto, shift.getId(), shift.getDate(), shift.getTimesheetId());
-                //breakRepo.save(brejk);
                 entitymanager.persist(brejk);
             }
         } catch (Exception e)
         {
-            log.error(e.toString());
-            throw e;
+            log.error("something very bad happened: " + e.getMessage());
+            throw new Exception("Error on Shift Save !",e);
         }
     }
 }

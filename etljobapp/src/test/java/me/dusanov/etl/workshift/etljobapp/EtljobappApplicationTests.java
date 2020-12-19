@@ -167,7 +167,9 @@ class EtljobappApplicationTests {
 		try{
 			shiftService.save(resp.getBody()[0]);
 		} catch (Exception e){
+			//not sure how good this test actually is
 			assertNotNull(e);
+			assertEquals(e.getMessage(),"Error on Shift Save !");
 			assertEquals(((List<Shift>)shiftRepo.findAll()).size(), 1);
 			assertEquals(((List<Break>)breakRepo.findAll()).size(), 1);
 			assertEquals(((List<Allowance>)allowanceRepo.findAll()).size(), 1);

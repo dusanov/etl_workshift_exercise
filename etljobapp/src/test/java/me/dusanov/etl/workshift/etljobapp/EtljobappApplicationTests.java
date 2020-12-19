@@ -34,8 +34,6 @@ import org.springframework.web.context.WebApplicationContext;
 import javax.transaction.Transactional;
 import java.net.URI;
 import java.util.List;
-import java.util.Scanner;
-import java.util.TimeZone;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
@@ -179,6 +177,7 @@ class EtljobappApplicationTests {
 	}
 
 	@Test
+	@Transactional
 	void testConvertTimestamp() throws Exception {
 		//String dtoJsonString = jsonTester.from(jsonFile).getJson();
 		//ShiftDto dto = mapper.convertValue(dtoJsonString.substring(1,dtoJsonString.length()-1),ShiftDto.class);

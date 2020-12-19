@@ -1,6 +1,8 @@
 package me.dusanov.etl.workshift.workshiftendpoint.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import me.dusanov.etl.workshift.workshiftendpoint.model.AllowanceDto;
+import me.dusanov.etl.workshift.workshiftendpoint.model.BreakDto;
 import me.dusanov.etl.workshift.workshiftendpoint.model.Shift;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,8 +31,8 @@ public class ShiftService implements CommandLineRunner {
         return new ArrayList<Shift>(shifts.values());
     }
 
-    public List<Shift> get(Long shiftId) {
-        return null;
+    public Shift get(Integer shiftId) {
+        return shifts.get(shiftId);
     }
 
     public List<Shift> getSome(String commaSepartedIds) {
@@ -53,10 +55,19 @@ public class ShiftService implements CommandLineRunner {
             Integer min = 1;
             Integer max = 100000;
             Integer randId = (int)(Math.random() * (max - min + 1) + min);
-            log.info("generated random id: " + randId);
+            log.info("generated random shift id: " + randId);
 
             Shift shift = mapper.readValue(new File(jsonFile.getURI()),Shift[].class)[0];
             shift.setId(randId);
+
+            for (AllowanceDto allwnc: shift.getAllowances()){
+                Integer randId2 = (int)(Math.random() * (max - min + 1) + min);
+                allwnc.setId(randId2);
+            }
+            for (BreakDto brejk: shift.getBreaks()){
+                Integer randId2 = (int)(Math.random() * (max - min + 1) + min);
+                brejk.setId(randId2);
+            }
             shifts.put(randId,shift);
 
         }

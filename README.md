@@ -36,6 +36,20 @@ At boot time, app will randomly generate shift data for the previous week. This 
 #### Models
 * shift
 
+#### Startup
+At boot time app will generate 5 shift objects and write out ids to the console:
+`generated random id: 9894
+ generated random id: 13414
+ ...`
+App is started with:
+
+`mvn spring-boot:run`
+
+or
+
+`
+java -jar dist/workshiftendpoint-0.0.1-SNAPSHOT.jar 
+`
 ### ETLJob
 Console app - consumes the endpoint, transform and loads it to the H2 database.
 
@@ -54,4 +68,22 @@ or
 `mvn package
 java -jar target/etljobapp-0.0.1-SNAPSHOT.jar 2133`
 
-no args means get all shifts
+To retrive more than one shift object:
+
+`mvn spring-boot:run -Dspring-boot.run.arguments=1231,1234,1324`
+
+or
+`mvn package
+java -jar target/etljobapp-0.0.1-SNAPSHOT.jar 2133,1324,431`
+
+or
+`java -jar dist/etljobapp-0.0.1-SNAPSHOT.jar 2133,1324,431`
+
+no args means get all the shifts
+
+## Testing
+Since this is implemented with in memory H2, I understand this is a bit hard to test/confirm the data. When run with `mvn spring-boot:run  -Dspring-boot.run.arguments=95299,20447` so with the arguments, Spring boot gets stuck and does not shutdown which allows a loggin to H2 console:
+http://localhost:8090/console
+`user / password: sa / sa`
+conn string:
+`jdbc:h2:mem:work_shift?options=DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE`

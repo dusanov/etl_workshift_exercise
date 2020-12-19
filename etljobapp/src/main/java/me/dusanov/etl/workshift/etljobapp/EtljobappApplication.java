@@ -47,12 +47,25 @@ public class EtljobappApplication {
 			// if there is an argument it has to be shiftId
 			// if not, all shifts will be called
 			if (args.length == 1){
-				try {
-					ShiftDto dto = restTemplate.getForObject(url+"/" + args[0], ShiftDto.class);
-					shiftService.save(dto);
-				} catch (Exception e){
-					log.error("there was an error: ", e);
-					System.exit(-1);
+				if (args[0].contains(",")){
+					try {
+						ShiftDto[] dtos = restTemplate.getForObject(url+"?ids="+args[0], ShiftDto[].class);
+						for (ShiftDto dto : dtos) shiftService.save(dto);
+						log.info("done for: " + args[0]);
+					} catch (Exception e){
+						log.error("there was an error: ", e);
+						System.exit(-1);
+					}
+				}
+				else{
+					try {
+						ShiftDto dto = restTemplate.getForObject(url+"/" + args[0], ShiftDto.class);
+						shiftService.save(dto);
+						log.info("done for: " + args[0]);
+					} catch (Exception e){
+						log.error("there was an error: ", e);
+						System.exit(-1);
+					}
 				}
 			}
 			else{
@@ -60,6 +73,7 @@ public class EtljobappApplication {
 				try {
 					ShiftDto[] dtos = restTemplate.getForObject(url, ShiftDto[].class);
 					for (ShiftDto dto : dtos) shiftService.save(dto);
+					log.info("done for get all shifts ");
 				} catch (Exception e){
 					log.error("there was an error: ", e);
 					err = -1;

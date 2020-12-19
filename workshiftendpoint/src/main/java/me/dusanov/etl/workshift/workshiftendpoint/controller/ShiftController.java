@@ -25,7 +25,7 @@ public class ShiftController {
     }
 
     @GetMapping("/{shiftId}")
-    public List<Shift> get(@PathVariable Long shiftId){
+    public Shift get(@PathVariable Integer shiftId){
         return service.get(shiftId);
     }
 

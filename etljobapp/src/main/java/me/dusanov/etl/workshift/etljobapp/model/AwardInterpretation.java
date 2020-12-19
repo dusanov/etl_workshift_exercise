@@ -9,14 +9,19 @@ import lombok.NoArgsConstructor;
 import me.dusanov.etl.workshift.etljobapp.dto.AwardInterpretationDto;
 
 import javax.persistence.*;
+import java.util.Date;
+import java.util.TimeZone;
 
 @Entity
-@Table(name = "award_interpretations")
+@Table(name = "shift_award_interpretations")
 @Data
 @NoArgsConstructor
 public class AwardInterpretation {
 
     public AwardInterpretation(AwardInterpretationDto awardInterpretationDto, Integer id, String date, Integer timesheetId) {
+        //we want EST date time
+        TimeZone.setDefault(TimeZone.getTimeZone("EST"));
+
         this.shiftId = id;
         this.shiftDate = date;
         this.timesheetId = timesheetId;
@@ -26,8 +31,10 @@ public class AwardInterpretation {
         this.secondaryExportName = awardInterpretationDto.getSecondaryExportName();
         this.ordinaryHours = awardInterpretationDto.getOrdinaryHours();
         this.cost = awardInterpretationDto.getCost();
-        this.from = awardInterpretationDto.getFrom();
-        this.to = awardInterpretationDto.getTo();
+        if (null != awardInterpretationDto.getFrom())
+            this.from = new Date(awardInterpretationDto.getFrom() * 1000L);
+        if (null != awardInterpretationDto.getTo())
+            this.to = new Date(awardInterpretationDto.getTo() * 1000L);
     }
 
     @Id @GeneratedValue(strategy = GenerationType.SEQUENCE)
@@ -46,6 +53,6 @@ public class AwardInterpretation {
     private Boolean ordinaryHours;
     private Double cost;
     @Column(name="\"from\"")
-    private Integer from;
-    private Integer to;
+    private Date from;
+    private Date to;
 }

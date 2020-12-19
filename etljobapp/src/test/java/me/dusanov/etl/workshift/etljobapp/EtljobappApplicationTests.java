@@ -35,6 +35,7 @@ import javax.transaction.Transactional;
 import java.net.URI;
 import java.util.List;
 import java.util.Scanner;
+import java.util.TimeZone;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
@@ -175,5 +176,26 @@ class EtljobappApplicationTests {
 			assertEquals(((List<Allowance>)allowanceRepo.findAll()).size(), 1);
 			assertEquals(((List<AwardInterpretation>)awRepo.findAll()).size(), 4);
 		}
+	}
+
+	@Test
+	void testConvertTimestamp() throws Exception {
+		//String dtoJsonString = jsonTester.from(jsonFile).getJson();
+		//ShiftDto dto = mapper.convertValue(dtoJsonString.substring(1,dtoJsonString.length()-1),ShiftDto.class);
+		mockServer.expect(ExpectedCount.once(),
+				requestTo(new URI("http://localhost:8080/api/v1/shifts/1")))
+				.andExpect(method(HttpMethod.GET))
+				.andRespond(withStatus(HttpStatus.OK)
+						.contentType(MediaType.APPLICATION_JSON)
+						.body(jsonTester.from(jsonFile).getJson())
+				);
+
+		ResponseEntity<ShiftDto[]> resp = restTemplate.getForEntity("http://localhost:8080/api/v1/shifts/1", ShiftDto[].class);
+		mockServer.verify();
+		assertEquals(resp.getStatusCode(), HttpStatus.OK);
+		assertNotNull(resp.getBody()[0]);
+		ShiftDto shiftDto = resp.getBody()[0];
+		Shift shift = shiftService.save(resp.getBody()[0]);
+		assertEquals(1595526660 * 1000L,shift.getStart().getTime());
 	}
 }

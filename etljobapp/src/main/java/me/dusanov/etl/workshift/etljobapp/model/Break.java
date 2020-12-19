@@ -9,22 +9,30 @@ import lombok.NoArgsConstructor;
 import me.dusanov.etl.workshift.etljobapp.dto.BreakDto;
 
 import javax.persistence.*;
+import java.util.Date;
+import java.util.TimeZone;
 
 @Entity
-@Table(name = "breaks")
+@Table(name = "shift_breaks")
 @Data
 @NoArgsConstructor
 public class Break {
     public Break(BreakDto breakDto, Integer id, String date, Integer timesheetId) {
+        //we want EST date time
+        TimeZone.setDefault(TimeZone.getTimeZone("EST"));
+
         this.id = breakDto.getId();
         this.shiftId = id;
         this.shiftDate = date;
         this.timesheetId = timesheetId;
-        this.start = breakDto.getStart();
-        this.finish = breakDto.getFinish();
+        if (null != breakDto.getStart())
+            this.start = new Date(breakDto.getStart() * 1000L);
+        if (null != breakDto.getFinish())
+            this.finish = new Date(breakDto.getFinish() * 1000L);
         this.length = breakDto.getLength();
         this.paid = breakDto.getPaid();
-        this.updatedAt = breakDto.getUpdatedAt();
+        if (null != breakDto.getUpdatedAt())
+            this.updatedAt = new Date(breakDto.getUpdatedAt() * 1000L);
     }
     @Id //@GeneratedValue
     private Integer id;
@@ -35,9 +43,9 @@ public class Break {
     //sheet_id (corresponds to ‘sheet_id’ in shift object);
     @Column(name="sheet_id")
     private Integer timesheetId;
-    private Integer start;
-    private Integer finish;
+    private Date start;
+    private Date finish;
     private Integer length;
     private Boolean paid;
-    private Integer updatedAt;
+    private Date updatedAt;
 }

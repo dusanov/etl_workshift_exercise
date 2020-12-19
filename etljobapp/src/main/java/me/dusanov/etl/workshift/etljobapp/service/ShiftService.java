@@ -38,7 +38,7 @@ public class ShiftService {
     @Autowired private final EntityManager entitymanager;
 
     @Transactional
-    public void save(ShiftDto shiftDto) throws Exception {
+    public Shift save(ShiftDto shiftDto) throws Exception {
 
         try {
             Shift shift = new Shift(shiftDto);
@@ -56,6 +56,7 @@ public class ShiftService {
                 Break brejk = new Break(breakDto, shift.getId(), shift.getDate(), shift.getTimesheetId());
                 entitymanager.persist(brejk);
             }
+            return shift;
         } catch (Exception e)
         {
             log.error("something very bad happened: " + e.getMessage());

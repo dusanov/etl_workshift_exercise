@@ -55,3 +55,14 @@ or
 java -jar target/etljobapp-0.0.1-SNAPSHOT.jar 2133`
 
 no args means get all shifts
+//conversions
+Mon Jan 19 06:12:06 EST 1970
+Mon Jan 19 01:12:06 EST 1970
+1595526660
+Sat, 19 Dec 2020 12:57:34 GMT
+
+1595526660
+Mon Jan 19 01:12:06 EST 1970
+1577526660
+///
+//TODO:ordinary hours ? true false null

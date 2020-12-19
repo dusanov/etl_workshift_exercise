@@ -9,21 +9,27 @@ import lombok.NoArgsConstructor;
 import me.dusanov.etl.workshift.etljobapp.dto.AllowanceDto;
 
 import javax.persistence.*;
+import java.util.Date;
+import java.util.TimeZone;
 
 @Entity
-@Table(name="allowances")
+@Table(name="shift_allowances")
 @Data
 @NoArgsConstructor
 public class Allowance {
 
     public Allowance(AllowanceDto dto, Integer shiftId, String shiftDate, Integer timesheetId ) {
+        //we want EST date time
+        TimeZone.setDefault(TimeZone.getTimeZone("EST"));
+
         this.id = dto.getId();
         this.shiftId = shiftId;
         this.shiftDate = shiftDate;
         this.timesheetId = timesheetId;
         this.name = dto.getName();
         this.value = dto.getValue();
-        this.updatedAt = dto.getUpdatedAt();
+        if (null != dto.getUpdatedAt())
+            this.updatedAt = new Date(dto.getUpdatedAt() * 1000L);
         this.cost = dto.getCost();
     }
     @Id //@GeneratedValue
@@ -37,6 +43,6 @@ public class Allowance {
     private Integer timesheetId;
     private String name;
     private Double value;
-    private Integer updatedAt;
+    private Date updatedAt;
     private Double cost;
 }

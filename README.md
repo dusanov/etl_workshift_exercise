@@ -7,7 +7,7 @@ The endpoint generates random shift data for the previous week. The endpoint jus
 returns the data, no need to back it with the database. No need to provide authentication.
 
 ETL job that fetches the data from the REST endpoint, transforms the
-data and loads it into a database (H2). The resulting
+data and loads it into a database (Postgres). The resulting
 database contains 4 tables:
 * breaks - which containс all the `breaks` fetched from the shift data from the API.
 * allowances - which contains all the `allowances` fetched from the shift data from
@@ -16,6 +16,7 @@ the API
 from the shift data from the API
 * shifts - which should contain everything it does except for breaks, allowances,
 awar_interpretation properties (arrays);
+* batches - wrapper for all shift objects extracted in one run
 
 All the timestamps should be converted to EST timezone;
 
@@ -26,20 +27,21 @@ shift object), sheet_id (corresponds to ‘sheet_id’ in shift object);
 ## Solution design
 This projects consists of two Spring Boot apps:
 * WorkShiftRestEndpoint - endpoint for generating random work shift data
-* ETLJob - Console app to consume the endpoint, transform and load it to the H2 database.
+* ETLJob - Console app to consume the endpoint, transform and load it to the Postgres database.
 
 ### WorkShiftRestEndpoint
 At boot time, app will randomly generate shift data for the previous week. This data will be served through the rest controller. There will be only two rest methods:
 * get - serves all records
 * get/{id} - serves one particular shift
+* get/?ids={ids} - serves list of shift records based on comma separated list of shift ids
 
 #### Models
 * shift
 
 #### Startup
 At boot time app will generate 5 shift objects and write out ids to the console:
-`generated random id: 9894
- generated random id: 13414
+`generated random shift id: 9894
+ generated random shift id: 13414
  ...`
 App is started with:
 
@@ -51,39 +53,26 @@ or
 java -jar dist/workshiftendpoint-0.0.1-SNAPSHOT.jar 
 `
 ### ETLJob
-Console app - consumes the endpoint, transform and loads it to the H2 database.
+Console app - consumes the endpoint, transform and loads it to the Postgres database.
 
 #### Models
 * break
 * allowance
 * award_interpretation
 * shift
+* batch
+* batch_shift_failed
 
 #### Startup
-To start and retrive one specific shift object:
+At boot time Etl job will do get all shifts to the rest service and compare all the shift ids to ids from local list of shift ids plus local list of failed shift ids.
+If there are new ids found, job will create new batch object, retrieve shift objects based on a list of comma separated ids and try to save them into the DB.
+If save operation fails (Transform or Load) shift will be saved to batches_shifts_failed table.
 
-`mvn spring-boot:run -Dspring-boot.run.arguments=1231`
-
-or
-`mvn package
-java -jar target/etljobapp-0.0.1-SNAPSHOT.jar 2133`
-
-To retrive more than one shift object:
-
-`mvn spring-boot:run -Dspring-boot.run.arguments=1231,1234,1324`
+`mvn spring-boot:run`
 
 or
 `mvn package
-java -jar target/etljobapp-0.0.1-SNAPSHOT.jar 2133,1324,431`
+java -jar target/etljobapp-0.0.1-SNAPSHOT.jar`
 
 or
-`java -jar dist/etljobapp-0.0.1-SNAPSHOT.jar 2133,1324,431`
-
-no args means get all the shifts
-
-## Testing
-Since this is implemented with in memory H2, I understand this is a bit hard to test/confirm the data. When run with `mvn spring-boot:run  -Dspring-boot.run.arguments=95299,20447` so with the arguments, Spring boot gets stuck and does not shutdown which allows a loggin to H2 console:
-http://localhost:8090/console
-`user / password: sa / sa`
-conn string:
-`jdbc:h2:mem:work_shift?options=DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE`
+`java -jar dist/etljobapp-0.0.1-SNAPSHOT.jar`

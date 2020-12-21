@@ -17,6 +17,7 @@ public class BatchShiftFailed {
     @Id
     private Integer shiftId;
     private String errorMessage;
+    @Lob
     private String dto;
     private String batchId;
 }

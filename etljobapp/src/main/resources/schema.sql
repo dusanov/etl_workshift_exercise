@@ -9,23 +9,23 @@ drop sequence if exists hibernate_sequence;
 create sequence hibernate_sequence start with 1 increment by 1;
 
    create table batches (
-       id integer not null,
+       id varchar(255) not null,
         date_created timestamp,
         primary key (id)
     );
 
     create table batches_shifts_failed (
        id integer not null,
-        batch_id integer,
-        dto varchar(255),
-        error_message varchar(255),
+        batch_id varchar(255),
+        dto varchar,
+        error_message varchar,
         shift_id integer,
         primary key (id)
     );
 
     create table shifts (
        id integer not null,
-	   batch_id integer,
+	   batch_id varchar(255),
         allowance_cost decimal,
         approved_at timestamp,
         approved_by integer,

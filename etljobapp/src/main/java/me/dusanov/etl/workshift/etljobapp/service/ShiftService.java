@@ -11,10 +11,7 @@ import me.dusanov.etl.workshift.etljobapp.dto.AwardInterpretationDto;
 import me.dusanov.etl.workshift.etljobapp.dto.BreakDto;
 import me.dusanov.etl.workshift.etljobapp.dto.ShiftDto;
 import me.dusanov.etl.workshift.etljobapp.model.*;
-import me.dusanov.etl.workshift.etljobapp.repo.AllowanceRepo;
-import me.dusanov.etl.workshift.etljobapp.repo.AwardInterpretationRepo;
-import me.dusanov.etl.workshift.etljobapp.repo.BreakRepo;
-import me.dusanov.etl.workshift.etljobapp.repo.ShiftRepo;
+import me.dusanov.etl.workshift.etljobapp.repo.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,8 +29,10 @@ public class ShiftService {
 
     private static final Logger log = LoggerFactory.getLogger(ShiftService.class);
 
-    /* these are obsolete, using EM instead to avoid select before insert perf concern
+    //these are obsolete, using EM instead to avoid select before insert perf concern
     private final ShiftRepo shiftRepo;
+    private final ShiftFailedRepo failedShiftRepo;
+    /*
     private final BreakRepo breakRepo;
     private final AwardInterpretationRepo awardInterpretationRepo;
     private final AllowanceRepo allowanceRepo;
@@ -86,5 +85,13 @@ public class ShiftService {
             log.error("something very bad happened: " + e.getMessage());
             throw new Exception(e.getMessage(),e);
         }
+    }
+
+    public List<Shift> getAll() {
+        return (List<Shift>) shiftRepo.findAll();
+    }
+
+    public List<BatchShiftFailed> getAllFailed() {
+        return (List<BatchShiftFailed>) failedShiftRepo.findAll();
     }
 }

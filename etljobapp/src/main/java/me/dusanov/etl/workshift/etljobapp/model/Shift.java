@@ -20,10 +20,10 @@ public class Shift implements Serializable {
 
     private final static long serialVersionUID = -4472707390104603353L;
 
-    public Shift(ShiftDto shiftDto) {
-        //we want EST date time
-        TimeZone.setDefault(TimeZone.getTimeZone("EST"));
+    public Shift(ShiftDto shiftDto, String batchId, String timezone) {
 
+        TimeZone.setDefault(TimeZone.getTimeZone(timezone));
+        this.batchId = batchId;
         this.id = shiftDto.getId();
         this.timesheetId = shiftDto.getTimesheetId();
         this.userId = shiftDto.getUserId();
@@ -76,4 +76,6 @@ public class Shift implements Serializable {
     private Date updatedAt;
     private Integer recordId;
     private Date lastCostedAt;
+    //many to one
+    private String batchId;
 }

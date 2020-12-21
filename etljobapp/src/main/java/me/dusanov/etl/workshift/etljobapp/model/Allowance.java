@@ -18,9 +18,9 @@ import java.util.TimeZone;
 @NoArgsConstructor
 public class Allowance {
 
-    public Allowance(AllowanceDto dto, Integer shiftId, String shiftDate, Integer timesheetId ) {
-        //we want EST date time
-        TimeZone.setDefault(TimeZone.getTimeZone("EST"));
+    public Allowance(AllowanceDto dto, Integer shiftId, String shiftDate, Integer timesheetId, String timezone ) {
+
+        TimeZone.setDefault(TimeZone.getTimeZone(timezone));
 
         this.id = dto.getId();
         this.shiftId = shiftId;

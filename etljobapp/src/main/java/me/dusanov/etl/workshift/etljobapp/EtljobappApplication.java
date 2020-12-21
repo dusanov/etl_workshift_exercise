@@ -3,6 +3,7 @@ package me.dusanov.etl.workshift.etljobapp;
 import lombok.Getter;
 import lombok.Setter;
 import me.dusanov.etl.workshift.etljobapp.dto.ShiftDto;
+import me.dusanov.etl.workshift.etljobapp.model.Batch;
 import me.dusanov.etl.workshift.etljobapp.service.ShiftService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,10 +16,6 @@ import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
 import org.springframework.web.client.RestTemplate;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.TimeZone;
 
 @ConfigurationProperties(prefix = "workshift.endpoint")
 @SpringBootApplication
@@ -43,6 +40,7 @@ public class EtljobappApplication {
 	public CommandLineRunner run(RestTemplate restTemplate) throws Exception {
 		return args -> {
 
+			Batch batch = new Batch("EST");
 			//no time for this mambo jumbo,
 			// if there is an argument it has to be shiftId
 			// if not, all shifts will be called
@@ -50,7 +48,7 @@ public class EtljobappApplication {
 				if (args[0].contains(",")){
 					try {
 						ShiftDto[] dtos = restTemplate.getForObject(url+"?ids="+args[0], ShiftDto[].class);
-						for (ShiftDto dto : dtos) shiftService.save(dto);
+						for (ShiftDto dto : dtos) shiftService.saveShift(dto,batch);
 						log.info("done for: " + args[0]);
 					} catch (Exception e){
 						log.error("there was an error: ", e);
@@ -60,7 +58,7 @@ public class EtljobappApplication {
 				else{
 					try {
 						ShiftDto dto = restTemplate.getForObject(url+"/" + args[0], ShiftDto.class);
-						shiftService.save(dto);
+						shiftService.saveShift(dto,batch);
 						log.info("done for: " + args[0]);
 					} catch (Exception e){
 						log.error("there was an error: ", e);
@@ -72,7 +70,7 @@ public class EtljobappApplication {
 				int err = 0;
 				try {
 					ShiftDto[] dtos = restTemplate.getForObject(url, ShiftDto[].class);
-					for (ShiftDto dto : dtos) shiftService.save(dto);
+					for (ShiftDto dto : dtos) shiftService.saveShift(dto,batch);
 					log.info("done for get all shifts ");
 				} catch (Exception e){
 					log.error("there was an error: ", e);

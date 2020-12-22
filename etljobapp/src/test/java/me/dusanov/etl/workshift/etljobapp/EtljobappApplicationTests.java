@@ -2,6 +2,7 @@ package me.dusanov.etl.workshift.etljobapp;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import me.dusanov.etl.workshift.etljobapp.dto.ShiftDto;
 import me.dusanov.etl.workshift.etljobapp.model.*;
@@ -9,7 +10,6 @@ import me.dusanov.etl.workshift.etljobapp.repo.*;
 import me.dusanov.etl.workshift.etljobapp.service.ShiftService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -20,6 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestConstructor;
 import org.springframework.test.web.client.ExpectedCount;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.test.web.servlet.MockMvc;
@@ -43,17 +44,19 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 @ConfigurationProperties(prefix = "workshift.endpoint")
 @ActiveProfiles("test")
 @SpringBootTest
+@TestConstructor(autowireMode = TestConstructor.AutowireMode.ALL)
+@RequiredArgsConstructor//(onConstructor_ = @Autowired)
 class EtljobappApplicationTests {
 	
 	private final RestTemplate restTemplate = new RestTemplate();
-	@Autowired	private WebApplicationContext wac;
-	@Autowired	private ShiftService shiftService;
-	@Autowired	private ShiftRepo shiftRepo;
-	@Autowired	private AwardInterpretationRepo awRepo;
-	@Autowired	private BreakRepo breakRepo;
-	@Autowired	private AllowanceRepo allowanceRepo;
-	@Autowired	private BatchRepo batchRepo;
-	@Autowired	private ShiftFailedRepo shiftFailedRepoRepo;
+	private final WebApplicationContext wac;
+	private final ShiftService shiftService;
+	private final ShiftRepo shiftRepo;
+	private final AwardInterpretationRepo awRepo;
+	private final BreakRepo breakRepo;
+	private final AllowanceRepo allowanceRepo;
+	private final BatchRepo batchRepo;
+	private final ShiftFailedRepo shiftFailedRepoRepo;
 
 	@Value("classpath:/shift_data_326872_example.json")
 	Resource jsonFile;
@@ -138,10 +141,10 @@ class EtljobappApplicationTests {
 		assertEquals(resp.getStatusCode(), HttpStatus.OK);
 		assertNotNull(resp.getBody()[0]);
 		shiftService.saveShift(resp.getBody()[0],this.batch);
-		assertEquals(((List<Shift>)shiftRepo.findAll()).size(), 1);
-		assertEquals(((List<Break>)breakRepo.findAll()).size(), 1);
-		assertEquals(((List<Allowance>)allowanceRepo.findAll()).size(), 1);
-		assertEquals(((List<AwardInterpretation>)awRepo.findAll()).size(), 4);
+		assertEquals(1, ((List<Shift>)shiftRepo.findAll()).size());
+		assertEquals(1, ((List<Break>)breakRepo.findAll()).size());
+		assertEquals(1, ((List<Allowance>)allowanceRepo.findAll()).size());
+		assertEquals(4, ((List<AwardInterpretation>)awRepo.findAll()).size());
 	}
 
 	@Test
@@ -187,22 +190,9 @@ class EtljobappApplicationTests {
 	@Test
 	@Transactional
 	void testConvertTimestamp() throws Exception {
-		//String dtoJsonString = jsonTester.from(jsonFile).getJson();
-		//ShiftDto dto = mapper.convertValue(dtoJsonString.substring(1,dtoJsonString.length()-1),ShiftDto.class);
-		mockServer.expect(ExpectedCount.once(),
-				requestTo(new URI("http://localhost:8080/api/v1/shifts/1")))
-				.andExpect(method(HttpMethod.GET))
-				.andRespond(withStatus(HttpStatus.OK)
-						.contentType(MediaType.APPLICATION_JSON)
-						.body(jsonTester.from(jsonFile).getJson())
-				);
-
-		ResponseEntity<ShiftDto[]> resp = restTemplate.getForEntity("http://localhost:8080/api/v1/shifts/1", ShiftDto[].class);
-		mockServer.verify();
-		assertEquals(resp.getStatusCode(), HttpStatus.OK);
-		assertNotNull(resp.getBody()[0]);
-		ShiftDto shiftDto = resp.getBody()[0];
-		Shift shift = shiftService.saveShift(resp.getBody()[0],batch);
+		ShiftDto[] shifts = mapper.readValue(new File(jsonFile.getURI()),ShiftDto[].class);
+		ShiftDto shiftDto = shifts[0];
+		Shift shift = shiftService.saveShift(shiftDto,batch);
 		assertEquals(1595526660 * 1000L,shift.getStart().getTime());
 	}
 

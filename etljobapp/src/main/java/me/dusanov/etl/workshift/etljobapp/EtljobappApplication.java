@@ -1,8 +1,6 @@
 package me.dusanov.etl.workshift.etljobapp;
 
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import me.dusanov.etl.workshift.etljobapp.dto.ShiftDto;
 import me.dusanov.etl.workshift.etljobapp.model.Batch;
 import me.dusanov.etl.workshift.etljobapp.model.BatchShiftFailed;
@@ -11,15 +9,11 @@ import me.dusanov.etl.workshift.etljobapp.service.ShiftService;
 import me.dusanov.etl.workshift.etljobapp.service.WorkShiftClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;

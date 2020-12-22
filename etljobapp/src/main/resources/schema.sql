@@ -15,12 +15,12 @@ create sequence hibernate_sequence start with 1 increment by 1;
     );
 
     create table batches_shifts_failed (
-       id integer not null,
+      -- id integer not null,
         batch_id varchar(255),
         dto varchar,
         error_message varchar,
-        shift_id integer,
-        primary key (id)
+        shift_id integer not null,
+        primary key (shift_id)
     );
 
     create table shifts (

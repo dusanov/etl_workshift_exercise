@@ -13,14 +13,11 @@ import java.util.UUID;
 @Entity
 @Table(name = "batches")
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class Batch implements Serializable {
 
     private final static long serialVersionUID = -4671670169084511353L;
 
-    public Batch(String timezone){
-        TimeZone.setDefault(TimeZone.getTimeZone(timezone));
+    public Batch(){
         this.id = UUID.randomUUID().toString();
         this.dateCreated = new Date();
     }

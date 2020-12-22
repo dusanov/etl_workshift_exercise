@@ -18,10 +18,7 @@ import java.util.TimeZone;
 @NoArgsConstructor
 public class AwardInterpretation {
 
-    public AwardInterpretation(AwardInterpretationDto awardInterpretationDto, Integer id, String date, Integer timesheetId,String timezone) {
-
-        TimeZone.setDefault(TimeZone.getTimeZone(timezone));
-
+    public AwardInterpretation(AwardInterpretationDto awardInterpretationDto, Integer id, String date, Integer timesheetId) {
         this.shiftId = id;
         this.shiftDate = date;
         this.timesheetId = timesheetId;

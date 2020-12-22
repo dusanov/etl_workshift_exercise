@@ -17,9 +17,7 @@ import java.util.TimeZone;
 @Data
 @NoArgsConstructor
 public class Break {
-    public Break(BreakDto breakDto, Integer id, String date, Integer timesheetId, String timezone) {
-        //we want EST date time
-        TimeZone.setDefault(TimeZone.getTimeZone(timezone));
+    public Break(BreakDto breakDto, Integer id, String date, Integer timesheetId) {
 
         this.id = breakDto.getId();
         this.shiftId = id;

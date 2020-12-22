@@ -20,9 +20,8 @@ public class Shift implements Serializable {
 
     private final static long serialVersionUID = -4472707390104603353L;
 
-    public Shift(ShiftDto shiftDto, String batchId, String timezone) {
+    public Shift(ShiftDto shiftDto, String batchId) {
 
-        TimeZone.setDefault(TimeZone.getTimeZone(timezone));
         this.batchId = batchId;
         this.id = shiftDto.getId();
         this.timesheetId = shiftDto.getTimesheetId();

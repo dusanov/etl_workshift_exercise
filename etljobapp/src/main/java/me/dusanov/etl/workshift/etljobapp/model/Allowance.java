@@ -18,10 +18,7 @@ import java.util.TimeZone;
 @NoArgsConstructor
 public class Allowance {
 
-    public Allowance(AllowanceDto dto, Integer shiftId, String shiftDate, Integer timesheetId, String timezone ) {
-
-        TimeZone.setDefault(TimeZone.getTimeZone(timezone));
-
+    public Allowance(AllowanceDto dto, Integer shiftId, String shiftDate, Integer timesheetId) {
         this.id = dto.getId();
         this.shiftId = shiftId;
         this.shiftDate = shiftDate;

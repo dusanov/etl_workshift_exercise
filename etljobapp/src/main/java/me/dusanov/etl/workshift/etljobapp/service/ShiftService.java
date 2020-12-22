@@ -17,9 +17,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
-import javax.transaction.Transactional;
+import javax.persistence.PersistenceContext;
+//import javax.transaction.Transactional;
 import java.util.List;
 
 @Service
@@ -37,11 +41,8 @@ public class ShiftService {
     private final AwardInterpretationRepo awardInterpretationRepo;
     private final AllowanceRepo allowanceRepo;
     */
-
-    @Getter
-    @Setter
-    private String timezone;
-    @Autowired private final EntityManager entitymanager;
+    @PersistenceContext
+    private final EntityManager entitymanager;
     private final ObjectMapper mapper = new ObjectMapper();
 
 
@@ -54,6 +55,7 @@ public class ShiftService {
             try {
                 saveShift(dto,batch);
             }catch (Exception e){
+                log.error("caught error in batch save: " + e.getMessage());
                 entitymanager.persist(
                         new BatchShiftFailed(dto.getId(),e.getMessage(),mapper.writeValueAsString(dto), batch.getId()));
             }
@@ -61,24 +63,27 @@ public class ShiftService {
         }
     }
 
-    @Transactional
+    @Transactional /*(rollbackFor = Exception.class,
+                    isolation = Isolation.DEFAULT,
+                    propagation = Propagation.REQUIRES_NEW) */
     public Shift saveShift(ShiftDto shiftDto, Batch batch) throws Exception {
-
+        log.debug(" in save shift ");
         try {
-            Shift shift = new Shift(shiftDto,batch.getId(),this.timezone);
+            Shift shift = new Shift(shiftDto,batch.getId());
             entitymanager.persist(shift);
             for (AllowanceDto allowanceDto : shiftDto.getAllowances()) {
-                Allowance allowance = new Allowance(allowanceDto, shift.getId(), shift.getDate(), shift.getTimesheetId(),this.timezone);
+                Allowance allowance = new Allowance(allowanceDto, shift.getId(), shift.getDate(), shift.getTimesheetId());
                 entitymanager.persist(allowance);
             }
             for (AwardInterpretationDto awardInterpretationDto : shiftDto.getAwardInterpretation()) {
-                AwardInterpretation aw = new AwardInterpretation(awardInterpretationDto, shift.getId(), shift.getDate(), shift.getTimesheetId(),this.timezone);
+                AwardInterpretation aw = new AwardInterpretation(awardInterpretationDto, shift.getId(), shift.getDate(), shift.getTimesheetId());
                 entitymanager.persist(aw);
             }
             for (BreakDto breakDto : shiftDto.getBreaks()) {
-                Break brejk = new Break(breakDto, shift.getId(), shift.getDate(), shift.getTimesheetId(),this.timezone);
+                Break brejk = new Break(breakDto, shift.getId(), shift.getDate(), shift.getTimesheetId());
                 entitymanager.persist(brejk);
             }
+
             return shift;
         } catch (Exception e)
         {

@@ -18,9 +18,9 @@ import java.util.TimeZone;
 @NoArgsConstructor
 public class AwardInterpretation {
 
-    public AwardInterpretation(AwardInterpretationDto awardInterpretationDto, Integer id, String date, Integer timesheetId) {
-        //we want EST date time
-        TimeZone.setDefault(TimeZone.getTimeZone("EST"));
+    public AwardInterpretation(AwardInterpretationDto awardInterpretationDto, Integer id, String date, Integer timesheetId,String timezone) {
+
+        TimeZone.setDefault(TimeZone.getTimeZone(timezone));
 
         this.shiftId = id;
         this.shiftDate = date;
@@ -54,5 +54,6 @@ public class AwardInterpretation {
     private Double cost;
     @Column(name="\"from\"")
     private Date from;
+    @Column(name="\"to\"")
     private Date to;
 }

@@ -52,14 +52,14 @@ public class EtljobappApplication {
 
 				String ids = allIds.stream().map(id -> (id.toString())).collect(Collectors.joining(","));
 				List<ShiftDto> dtos = clientService.getSome(ids);
-				Batch batch = new Batch();
-				log.info(String.format("about to save batch %s, with these ids: %s",batch.getId(),ids));
-				shiftService.saveBatch(batch,dtos);
+				log.info(String.format("about to create a batch for ids: %s",ids));
+				Batch batch = shiftService.createBatch(dtos);
 				log.info(String.format("batch %s done",batch.getId(),ids));
 
 			}else{
 				log.info("nothing to run");
 			}
+			System.exit(0);
 		};
 	}
 

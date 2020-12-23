@@ -1,16 +1,14 @@
 package me.dusanov.etl.workshift.etljobapp.model;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import me.dusanov.etl.workshift.etljobapp.dto.ShiftDto;
-import me.dusanov.etl.workshift.etljobapp.model.util.TimestampConverter;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
 
 @Entity
 @Table(name = "shifts")
@@ -55,7 +53,6 @@ public class Shift implements Serializable {
     private Integer timesheetId;
     private Integer userId;
     private String date;
-    //@Convert(converter = TimestampConverter.class)
     private Date start;
     private Date finish;
     private Integer departmentId;
@@ -67,7 +64,6 @@ public class Shift implements Serializable {
     private Integer leaveRequestId;
     private Integer shiftFeedbackId;
     private Integer approvedBy;
-    //TODO: this needs to be converted but it's a string
     private Date approvedAt;
     private Double cost;
     private Double awardCost;

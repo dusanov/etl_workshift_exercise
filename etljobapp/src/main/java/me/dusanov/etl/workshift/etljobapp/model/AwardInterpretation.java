@@ -1,16 +1,11 @@
 package me.dusanov.etl.workshift.etljobapp.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import me.dusanov.etl.workshift.etljobapp.dto.AwardInterpretationDto;
 
 import javax.persistence.*;
 import java.util.Date;
-import java.util.TimeZone;
 
 @Entity
 @Table(name = "shift_award_interpretations")

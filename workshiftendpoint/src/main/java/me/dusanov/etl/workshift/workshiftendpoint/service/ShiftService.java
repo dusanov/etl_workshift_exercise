@@ -1,6 +1,8 @@
 package me.dusanov.etl.workshift.workshiftendpoint.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Getter;
+import lombok.Setter;
 import me.dusanov.etl.workshift.workshiftendpoint.model.AllowanceDto;
 import me.dusanov.etl.workshift.workshiftendpoint.model.BreakDto;
 import me.dusanov.etl.workshift.workshiftendpoint.model.Shift;
@@ -8,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@ConfigurationProperties(prefix = "workshift.service")
 @Service
 public class ShiftService implements CommandLineRunner {
 
@@ -24,6 +28,9 @@ public class ShiftService implements CommandLineRunner {
     @Value("classpath:/shift_data_326872_example.json")
     private Resource jsonFile;
     private final ObjectMapper mapper = new ObjectMapper();
+    @Getter @Setter private int numofshiftstocreate;
+    @Getter @Setter private int minrandom;
+    @Getter @Setter private int maxrandom;
 
     private Map<Integer, Shift> shifts = new HashMap<>();
 
@@ -50,10 +57,11 @@ public class ShiftService implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
 
-        //generate 5 shift objects
-        for (int x= 0; x< 5; x++){
-            Integer min = 1;
-            Integer max = 100000;
+        Integer min = minrandom;
+        Integer max = maxrandom;
+        //generate numofshiftstocreate shift objects
+        for (int x= 0; x< numofshiftstocreate; x++){
+
             Integer randId = (int)(Math.random() * (max - min + 1) + min);
             log.info("generated random shift id: " + randId);
 

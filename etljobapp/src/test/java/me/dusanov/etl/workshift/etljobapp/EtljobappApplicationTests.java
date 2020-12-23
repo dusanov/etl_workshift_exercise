@@ -123,26 +123,8 @@ class EtljobappApplicationTests {
 	@Test
 	@Transactional
 	void testShiftServiceSave() throws Exception {
-		//sanity check
-		/*
-		assertEquals(0, ((List<Shift>)shiftRepo.findAll()).size());
-		assertEquals(0, ((List<Break>)breakRepo.findAll()).size());
-		assertEquals(0, ((List<Allowance>)allowanceRepo.findAll()).size());
-		assertEquals(0, ((List<AwardInterpretation>)awRepo.findAll()).size());
-		*/
-		mockServer.expect(ExpectedCount.once(),
-				requestTo(new URI("http://localhost:8080/api/v1/shifts/1")))
-				.andExpect(method(HttpMethod.GET))
-				.andRespond(withStatus(HttpStatus.OK)
-						.contentType(MediaType.APPLICATION_JSON)
-						.body(jsonTester.from(jsonFile).getJson())
-				);
-
-		ResponseEntity<ShiftDto[]> resp = restTemplate.getForEntity("http://localhost:8080/api/v1/shifts/1", ShiftDto[].class);
-		mockServer.verify();
-		assertEquals(resp.getStatusCode(), HttpStatus.OK);
-		assertNotNull(resp.getBody()[0]);
-		shiftService.saveShift(resp.getBody()[0],this.batch);
+		ShiftDto[] shifts = mapper.readValue(new File(jsonFile.getURI()),ShiftDto[].class);
+		shiftService.saveShift(shifts[0],this.batch);
 		assertEquals(1, ((List<Shift>)shiftRepo.findAll()).size());
 		assertEquals(1, ((List<Break>)breakRepo.findAll()).size());
 		assertEquals(1, ((List<Allowance>)allowanceRepo.findAll()).size());

@@ -19,12 +19,12 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
-//import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceContextType;
-import javax.transaction.Transactional;
+//import javax.transaction.Transactional;
 import java.util.List;
 
 @Service
@@ -42,12 +42,12 @@ public class ShiftService {
     private final AwardInterpretationRepo awardInterpretationRepo;
     private final AllowanceRepo allowanceRepo;
     */
-    @PersistenceContext(type = PersistenceContextType.EXTENDED )
+    @PersistenceContext //(type = PersistenceContextType.EXTENDED )
     private final EntityManager entitymanager;
     private final ObjectMapper mapper = new ObjectMapper();
 
 
-//    @Transactional
+    @Transactional
     public void saveBatch(Batch batch, List<ShiftDto> shiftDtoList) /* throws JsonProcessingException */ {
 
         entitymanager.persist(batch);
@@ -68,7 +68,7 @@ public class ShiftService {
         }
     }
 
-    @Transactional //(rollbackFor = Exception.class)
+    @Transactional //(propagation = Propagation.REQUIRES_NEW)
     public Shift saveShift(ShiftDto shiftDto, Batch batch) throws Exception {
         log.debug(" in save shift ");
         try {

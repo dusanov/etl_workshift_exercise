@@ -19,11 +19,12 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
+//import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-//import javax.transaction.Transactional;
+import javax.persistence.PersistenceContextType;
+import javax.transaction.Transactional;
 import java.util.List;
 
 @Service
@@ -41,13 +42,13 @@ public class ShiftService {
     private final AwardInterpretationRepo awardInterpretationRepo;
     private final AllowanceRepo allowanceRepo;
     */
-    @PersistenceContext
+    @PersistenceContext(type = PersistenceContextType.EXTENDED )
     private final EntityManager entitymanager;
     private final ObjectMapper mapper = new ObjectMapper();
 
 
-    @Transactional
-    public void saveBatch(Batch batch, List<ShiftDto> shiftDtoList) throws JsonProcessingException {
+//    @Transactional
+    public void saveBatch(Batch batch, List<ShiftDto> shiftDtoList) /* throws JsonProcessingException */ {
 
         entitymanager.persist(batch);
 
@@ -56,16 +57,18 @@ public class ShiftService {
                 saveShift(dto,batch);
             }catch (Exception e){
                 log.error("caught error in batch save: " + e.getMessage());
-                entitymanager.persist(
+                try {
+                  entitymanager.persist(
                         new BatchShiftFailed(dto.getId(),e.getMessage(),mapper.writeValueAsString(dto), batch.getId()));
+                  log.info("Saved new BatchShiftFailed");
+                } catch (Exception fatal){
+                  log.error("fatal error happened: "+ fatal.getMessage(),fatal);
+                }
             }
-
         }
     }
 
-    @Transactional /*(rollbackFor = Exception.class,
-                    isolation = Isolation.DEFAULT,
-                    propagation = Propagation.REQUIRES_NEW) */
+    @Transactional //(rollbackFor = Exception.class)
     public Shift saveShift(ShiftDto shiftDto, Batch batch) throws Exception {
         log.debug(" in save shift ");
         try {
@@ -83,11 +86,10 @@ public class ShiftService {
                 Break brejk = new Break(breakDto, shift.getId(), shift.getDate(), shift.getTimesheetId());
                 entitymanager.persist(brejk);
             }
-
             return shift;
         } catch (Exception e)
         {
-            log.error("something very bad happened: " + e.getMessage());
+            log.error("something bad happened: " + e.getMessage());
             throw new Exception(e.getMessage(),e);
         }
     }

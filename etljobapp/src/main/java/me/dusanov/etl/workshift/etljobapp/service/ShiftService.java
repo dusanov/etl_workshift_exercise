@@ -42,12 +42,12 @@ public class ShiftService {
     private final AwardInterpretationRepo awardInterpretationRepo;
     private final AllowanceRepo allowanceRepo;
     */
-    @PersistenceContext //(type = PersistenceContextType.EXTENDED )
+    @PersistenceContext//(unitName="shiftService")
     private final EntityManager entitymanager;
     private final ObjectMapper mapper = new ObjectMapper();
 
 
-    @Transactional
+//    @Transactional
     public void saveBatch(Batch batch, List<ShiftDto> shiftDtoList) /* throws JsonProcessingException */ {
 
         entitymanager.persist(batch);
@@ -68,11 +68,12 @@ public class ShiftService {
         }
     }
 
-    @Transactional //(propagation = Propagation.REQUIRES_NEW)
-    public Shift saveShift(ShiftDto shiftDto, Batch batch) throws Exception {
+    @Transactional(/*propagation = Propagation.REQUIRES_NEW,*/
+                  rollbackFor = Exception.class)
+    public Shift saveShift(ShiftDto shiftDto, Batch batch) {
         log.debug(" in save shift ");
+        Shift shift = new Shift(shiftDto,batch.getId());
         try {
-            Shift shift = new Shift(shiftDto,batch.getId());
             entitymanager.persist(shift);
             for (AllowanceDto allowanceDto : shiftDto.getAllowances()) {
                 Allowance allowance = new Allowance(allowanceDto, shift.getId(), shift.getDate(), shift.getTimesheetId());
@@ -86,12 +87,12 @@ public class ShiftService {
                 Break brejk = new Break(breakDto, shift.getId(), shift.getDate(), shift.getTimesheetId());
                 entitymanager.persist(brejk);
             }
-            return shift;
         } catch (Exception e)
         {
             log.error("something bad happened: " + e.getMessage());
-            throw new Exception(e.getMessage(),e);
+            throw e;
         }
+        return shift;
     }
 
     public List<Shift> getAll() {

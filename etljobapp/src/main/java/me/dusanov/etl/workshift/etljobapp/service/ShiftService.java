@@ -8,6 +8,7 @@ import me.dusanov.etl.workshift.etljobapp.dto.BreakDto;
 import me.dusanov.etl.workshift.etljobapp.dto.ShiftDto;
 import me.dusanov.etl.workshift.etljobapp.model.*;
 import me.dusanov.etl.workshift.etljobapp.repo.*;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -60,7 +61,7 @@ public class ShiftService {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW,
                   rollbackFor = Exception.class)
-    public Shift saveShift(ShiftDto shiftDto, Batch batch) {
+    public Shift saveShift(ShiftDto shiftDto, @NotNull Batch batch) {
         log.debug(" in save shift ");
         Shift shift = new Shift(shiftDto,batch.getId());
         try {

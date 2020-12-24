@@ -4,11 +4,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import me.dusanov.etl.workshift.etljobapp.dto.AwardInterpretationDto;
 
-import javax.persistence.*;
 import java.util.Date;
 
-@Entity
-@Table(name = "shift_award_interpretations")
+import org.springframework.data.annotation.Id;
+import org.springframework.data.redis.core.RedisHash;
+
+@RedisHash("shifts_award_interpretations")
 @Data
 @NoArgsConstructor
 public class AwardInterpretation {
@@ -29,14 +30,14 @@ public class AwardInterpretation {
             this.to = new Date(awardInterpretationDto.getTo() * 1000L);
     }
 
-    @Id @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    //@GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @Id
     private Integer id;
     // foreign key to shift.id
     private Integer shiftId;
     //shift_date (corresponds to ‘date’ in shift object)
     private String shiftDate;
     //sheet_id (corresponds to ‘sheet_id’ in shift object);
-    @Column(name="sheet_id")
     private Integer timesheetId;
     private Double units;
     private String date;
@@ -44,8 +45,6 @@ public class AwardInterpretation {
     private String secondaryExportName;
     private Boolean ordinaryHours;
     private Double cost;
-    @Column(name="\"from\"")
     private Date from;
-    @Column(name="\"to\"")
     private Date to;
 }

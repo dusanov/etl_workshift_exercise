@@ -15,8 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,25 +34,20 @@ public class ShiftService {
     private final AwardInterpretationRepo awardInterpretationRepo;
     private final AllowanceRepo allowanceRepo;
 
-    @PersistenceContext//(unitName="shiftService")
-    private EntityManager entitymanager;
-
     /**/
     @Transactional(propagation = Propagation.REQUIRED,
             rollbackFor = Exception.class)
 
     public Batch createBatch(List<ShiftDto> shiftDtoList) /* throws JsonProcessingException */ {
         Batch batch = new Batch();
-        entitymanager.persist(batch);
-        //batchRepo.save(batch);
+        batchRepo.save(batch);
         for (ShiftDto dto : shiftDtoList){
             try {
                 saveShift(dto,batch);
             }catch (Exception e){
                 log.error("caught error in batch save: " + e.getMessage());
                 try {
-                  entitymanager.persist(
-                  //  shiftFailedRepo.save(
+                    shiftFailedRepo.save(
                         new BatchShiftFailed(dto.getId(),e.getMessage(),mapper.writeValueAsString(dto), batch.getId()));
                   log.info("Saved new BatchShiftFailed");
                 } catch (Exception fatal){

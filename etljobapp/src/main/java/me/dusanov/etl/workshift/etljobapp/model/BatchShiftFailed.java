@@ -4,10 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.redis.core.RedisHash;
 
-@Entity
-@Table(name = "batches_shifts_failed")
+@RedisHash("shifts_failed")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -17,7 +17,6 @@ public class BatchShiftFailed {
     @Id
     private Integer shiftId;
     private String errorMessage;
-    @Lob
     private String dto;
     private String batchId;
 }

@@ -3,15 +3,13 @@ package me.dusanov.etl.workshift.etljobapp.model;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import me.dusanov.etl.workshift.etljobapp.dto.BreakDto;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.redis.core.RedisHash;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+
 import java.util.Date;
 
-@Entity
-@Table(name = "shift_breaks")
+@RedisHash("shifts_breaks")
 @Data
 @NoArgsConstructor
 public class Break {
@@ -30,14 +28,14 @@ public class Break {
         if (null != breakDto.getUpdatedAt())
             this.updatedAt = new Date(breakDto.getUpdatedAt() * 1000L);
     }
-    @Id //@GeneratedValue
+
+    @Id
     private Integer id;
     // foreign key to shift.id
     private Integer shiftId;
     //shift_date (corresponds to ‘date’ in shift object)
     private String shiftDate;
     //sheet_id (corresponds to ‘sheet_id’ in shift object);
-    @Column(name="sheet_id")
     private Integer timesheetId;
     private Date start;
     private Date finish;

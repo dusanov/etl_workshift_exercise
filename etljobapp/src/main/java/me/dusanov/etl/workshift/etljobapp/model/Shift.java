@@ -4,14 +4,13 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import me.dusanov.etl.workshift.etljobapp.dto.ShiftDto;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.redis.core.RedisHash;
+
 import java.io.Serializable;
 import java.util.Date;
 
-@Entity
-@Table(name = "shifts")
+@RedisHash("shifts")
 @Data
 @NoArgsConstructor
 public class Shift implements Serializable {

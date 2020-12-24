@@ -34,12 +34,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.WebApplicationContext;
 
-import javax.persistence.EntityExistsException;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.PersistenceException;
-//import javax.transaction.Transactional;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -69,8 +63,6 @@ class EtljobappApplicationTests {
 	private final AllowanceRepo allowanceRepo;
 	private final BatchRepo batchRepo;
 	private final ShiftFailedRepo shiftFailedRepo;
-  //@PersistenceContext//(unitName="etlJobAppTests")
-  //private final EntityManager entitymanager;
 
 	@Value("classpath:/shift_data_326872_example.json")
 	Resource jsonFile;
@@ -131,7 +123,13 @@ class EtljobappApplicationTests {
 
 	}
 
-	@Disabled
+	@Test
+	@Transactional
+	public void testBatchCreation (){
+		Batch b = batchRepo.save(new Batch());
+		assertEquals(b.getId(), batchRepo.findById(b.getId()).get().getId());
+	}
+
 	@Test
 	@Transactional
 	public void testShiftServiceSave() throws Exception {
@@ -143,41 +141,6 @@ class EtljobappApplicationTests {
 
 		ShiftDto[] shifts = mapper.readValue(new File(jsonFile.getURI()),ShiftDto[].class);
 		shiftService.saveShift(shifts[0],batch);
-		assertEquals(1, ((List<Shift>)shiftRepo.findAll()).size());
-		assertEquals(1, ((List<Break>)breakRepo.findAll()).size());
-		assertEquals(1, ((List<Allowance>)allowanceRepo.findAll()).size());
-		assertEquals(4, ((List<AwardInterpretation>)awRepo.findAll()).size());
-	}
-
-	@Test
-	@Transactional
-	public void testRollbackBySavingTwice() throws Exception {
-		//sanity check
-		assertEquals(0, ((List<Shift>)shiftRepo.findAll()).size());
-		assertEquals(0, ((List<Break>)breakRepo.findAll()).size());
-		assertEquals(0, ((List<Allowance>)allowanceRepo.findAll()).size());
-		assertEquals(0, ((List<AwardInterpretation>)awRepo.findAll()).size());
-
-		ShiftDto[] shifts = mapper.readValue(new File(jsonFile.getURI()),ShiftDto[].class);
-		shiftService.saveShift(shifts[0],batch);
-
-		assertEquals(1, ((List<Shift>)shiftRepo.findAll()).size());
-		assertEquals(1, ((List<Break>)breakRepo.findAll()).size());
-		assertEquals(1, ((List<Allowance>)allowanceRepo.findAll()).size());
-		assertEquals(4, ((List<AwardInterpretation>)awRepo.findAll()).size());
-
-		/*
-		Assertions.assertThrows(PersistenceException.class,()->{
-			shiftService.saveShift(shifts[0],batch);
-		});
-
-		try{
-			shiftService.saveShift(shifts[0],batch);
-		} catch (Exception e){
-			assertTrue(e.getMessage().contains("A different object with the same identifier value was already associated with the session"));
-			//assertTrue(e.getMessage().contains("something completely different"));
-		}
-		 */
 
 		assertEquals(1, ((List<Shift>)shiftRepo.findAll()).size());
 		assertEquals(1, ((List<Break>)breakRepo.findAll()).size());
@@ -188,43 +151,12 @@ class EtljobappApplicationTests {
 	@Disabled
 	@Test
 	@Transactional
-	//@Rollback(false)
-	public void testRollbackByDeletingTheShiftRecord() throws Exception {
-		ShiftDto[] shifts = mapper.readValue(new File(jsonFile.getURI()),ShiftDto[].class);
-		Shift shift = shiftService.saveShift(shifts[0],batch);
+	public void testRollbackBySavingTwice() throws Exception { }
 
-		assertEquals(1, ((List<Shift>)shiftRepo.findAll()).size());
-//		assertEquals(1, ((List<Break>)breakRepo.findAll()).size());
-//		assertEquals(1, ((List<Allowance>)allowanceRepo.findAll()).size());
-//		assertEquals(4, ((List<AwardInterpretation>)awRepo.findAll()).size());
-
-		shiftRepo.delete(shift);
-
-		//TestTransaction.end();
-
-		assertEquals(0, ((List<Shift>)shiftRepo.findAll()).size());
-//		assertEquals(1, ((List<Break>)breakRepo.findAll()).size());
-//		assertEquals(1, ((List<Allowance>)allowanceRepo.findAll()).size());
-//		assertEquals(4, ((List<AwardInterpretation>)awRepo.findAll()).size());
-
-
-		Assertions.assertThrows(PersistenceException.class,()->{
-			shiftService.saveShift(shifts[0],batch);
-		});
-//		try{
-//			shiftService.saveShift(shifts[0],batch);
-//		} catch (Exception e){
-//			System.out.println(e.getMessage());
-//			assertTrue(e.getMessage().contains("A different object with the same identifier value was already associated with the session"));
-			//assertTrue(e.getMessage().contains("something completely different"));
-//		}
-
-		assertEquals(0, ((List<Shift>)shiftRepo.findAll()).size());
-//		assertEquals(1, ((List<Break>)breakRepo.findAll()).size());
-//		assertEquals(1, ((List<Allowance>)allowanceRepo.findAll()).size());
-//		assertEquals(4, ((List<AwardInterpretation>)awRepo.findAll()).size());
-
-	}
+	@Disabled
+	@Test
+	@Transactional
+	public void testRollbackByDeletingTheShiftRecord() throws Exception { }
 
 	@Test
 	@Transactional
@@ -242,36 +174,9 @@ class EtljobappApplicationTests {
 
 	@Test
 	@Transactional
-	public void testBatchCreation (){
-		Batch b = batchRepo.save(new Batch());
-		assertEquals(b.getId(), batchRepo.findById(b.getId()).get().getId());
-	}
-
-	@Test
-	@Transactional
 	public void testBatchPersistWithRollback () throws IOException {
 		ShiftDto[] shifts = mapper.readValue(new File(jsonFile.getURI()),ShiftDto[].class);
 		Batch batch1 = shiftService.createBatch(Arrays.asList(shifts));
-
-		assertEquals(1,((List<Batch>)batchRepo.findAll()).size());
-		//test shift failed
-		assertEquals(0, ((List<BatchShiftFailed>)shiftFailedRepo.findAll()).size());
-		assertEquals(1, ((List<Shift>)shiftRepo.findAll()).size());
-		assertEquals(1, ((List<Break>)breakRepo.findAll()).size());
-		assertEquals(1, ((List<Allowance>)allowanceRepo.findAll()).size());
-		assertEquals(4, ((List<AwardInterpretation>)awRepo.findAll()).size());
-/*
-		Assertions.assertThrows(PersistenceException.class,()->{
-			shiftService.saveShift(shifts[0],batch);
-		});
-
-		try {
-			Batch batch2 = shiftService.createBatch(Arrays.asList(shifts));
-		}
-		catch (Exception e){
-			assertTrue(e.getMessage().contains("A different object with the same identifier value was already associated with the session"));
-		}
-		 */
 
 		assertEquals(1,((List<Batch>)batchRepo.findAll()).size());
 		//test shift failed

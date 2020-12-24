@@ -1,16 +1,16 @@
 package me.dusanov.etl.workshift.etljobapp.model;
 
 import lombok.Data;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.convert.ReadingConverter;
+import org.springframework.data.convert.WritingConverter;
+import org.springframework.data.redis.core.RedisHash;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.UUID;
 
-@Entity
-@Table(name = "batches")
+@RedisHash("batches")
 @Data
 public class Batch implements Serializable {
 
@@ -23,5 +23,6 @@ public class Batch implements Serializable {
 
     @Id
     private String id;
+
     private Date dateCreated;
 }

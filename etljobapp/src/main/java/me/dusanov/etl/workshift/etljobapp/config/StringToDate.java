@@ -23,10 +23,12 @@ public class StringToDate implements Converter</*String*/byte[], Date> {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         sdf.setTimeZone(TimeZone.getTimeZone("America/New_York"));
         Date date = null;
+        String stringDate = "";
         try {
-            date = sdf.parse(Arrays.toString(attribute));
+            stringDate = Arrays.toString(attribute);
+            date = sdf.parse(stringDate);
         } catch (ParseException e) {
-            log.error(e.getMessage());
+            log.error(String.format("Error converting string %s to date. Error msg:\n%s\n",stringDate,e.getMessage()));
         }
         return date;
     }

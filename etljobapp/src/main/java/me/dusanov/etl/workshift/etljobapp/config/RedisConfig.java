@@ -49,7 +49,13 @@ public class RedisConfig {
         template.setConnectionFactory(jedisConnectionFactory());
         template.setKeySerializer(new GenericToStringSerializer<Object>(Object.class));
         template.setValueSerializer(new GenericToStringSerializer<Object>(Object.class));
-        template.setEnableTransactionSupport(true);
+
+        /*
+        https://github.com/spring-projects/spring-data-redis/blob/master/src/main/asciidoc/reference/redis-repositories.adoc#tx.spring
+        Redis Repositories require at least Redis Server version 2.8.0 and do not work with transactions.
+        Make sure to use a RedisTemplate with disabled transaction support.
+        */
+        //template.setEnableTransactionSupport(true);
 
         return template;
     }

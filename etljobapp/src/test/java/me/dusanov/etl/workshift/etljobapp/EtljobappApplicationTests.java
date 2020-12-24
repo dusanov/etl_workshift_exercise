@@ -8,10 +8,7 @@ import me.dusanov.etl.workshift.etljobapp.dto.ShiftDto;
 import me.dusanov.etl.workshift.etljobapp.model.*;
 import me.dusanov.etl.workshift.etljobapp.repo.*;
 import me.dusanov.etl.workshift.etljobapp.service.ShiftService;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -83,6 +80,16 @@ class EtljobappApplicationTests {
 		this.mockMvc = builder.build();
 	}
 
+	//fake rollback
+	@AfterEach
+	private void cleanup() {
+		batchRepo.deleteAll();
+		shiftRepo.deleteAll();
+		breakRepo.deleteAll();
+		allowanceRepo.deleteAll();
+		awRepo.deleteAll();
+	}
+
 	@Test
 	void testMockedResponseFromAJsonFileToString() throws Exception {
 		mockServer.expect(ExpectedCount.once(),
@@ -124,15 +131,15 @@ class EtljobappApplicationTests {
 	}
 
 	@Test
-	@Transactional
+	//this should be @Transactional
 	public void testBatchCreation (){
 		Batch b = batchRepo.save(new Batch());
 		assertEquals(b.getId(), batchRepo.findById(b.getId()).get().getId());
 	}
 
 	@Test
-	@Transactional
-	public void testShiftServiceSave() throws Exception {
+	//this should be @Transactional
+	public void testShiftServiceSaveShift() throws Exception {
 		//sanity check
 		assertEquals(0, ((List<Shift>)shiftRepo.findAll()).size());
 		assertEquals(0, ((List<Break>)breakRepo.findAll()).size());
@@ -148,33 +155,9 @@ class EtljobappApplicationTests {
 		assertEquals(4, ((List<AwardInterpretation>)awRepo.findAll()).size());
 	}
 
-	@Disabled
 	@Test
-	@Transactional
-	public void testRollbackBySavingTwice() throws Exception { }
-
-	@Disabled
-	@Test
-	@Transactional
-	public void testRollbackByDeletingTheShiftRecord() throws Exception { }
-
-	@Test
-	@Transactional
-	public void testConvertTimestamp() throws Exception {
-		ShiftDto[] shifts = mapper.readValue(new File(jsonFile.getURI()),ShiftDto[].class);
-		ShiftDto shiftDto = shifts[0];
-		Shift shift = shiftService.saveShift(shiftDto,batch);
-		assertEquals(1595526660 * 1000L,shift.getStart().getTime());
-
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		sdf.setTimeZone(TimeZone.getTimeZone("America/New_York"));
-
-		assertEquals("2020-07-23 13:51:00",sdf.format(shift.getStart()));
-	}
-
-	@Test
-	@Transactional
-	public void testBatchPersistWithRollback () throws IOException {
+	//this should be @Transactional
+	public void testShiftServiceSaveBatch () throws IOException {
 		ShiftDto[] shifts = mapper.readValue(new File(jsonFile.getURI()),ShiftDto[].class);
 		Batch batch1 = shiftService.createBatch(Arrays.asList(shifts));
 
@@ -186,5 +169,19 @@ class EtljobappApplicationTests {
 		assertEquals(1, ((List<Allowance>)allowanceRepo.findAll()).size());
 		assertEquals(4, ((List<AwardInterpretation>)awRepo.findAll()).size());
 
+	}
+
+	@Test
+	//this should be @Transactional
+	public void testConvertTimestamp() throws Exception {
+		ShiftDto[] shifts = mapper.readValue(new File(jsonFile.getURI()),ShiftDto[].class);
+		ShiftDto shiftDto = shifts[0];
+		Shift shift = shiftService.saveShift(shiftDto,batch);
+		assertEquals(1595526660 * 1000L,shift.getStart().getTime());
+
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		sdf.setTimeZone(TimeZone.getTimeZone("America/New_York"));
+
+		assertEquals("2020-07-23 13:51:00",sdf.format(shift.getStart()));
 	}
 }

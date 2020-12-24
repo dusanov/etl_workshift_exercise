@@ -7,7 +7,7 @@ import lombok.Setter;
 import me.dusanov.etl.workshift.etljobapp.dto.ShiftDto;
 import me.dusanov.etl.workshift.etljobapp.model.*;
 import me.dusanov.etl.workshift.etljobapp.repo.*;
-import me.dusanov.etl.workshift.etljobapp.service.ShiftService;
+import me.dusanov.etl.workshift.etljobapp.service.WorkShiftService;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -18,16 +18,13 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestConstructor;
-import org.springframework.test.context.transaction.TestTransaction;
 import org.springframework.test.web.client.ExpectedCount;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.WebApplicationContext;
 
@@ -53,7 +50,7 @@ class EtljobappApplicationTests {
 
 	private final RestTemplate restTemplate = new RestTemplate();
 	private final WebApplicationContext wac;
-	private final ShiftService shiftService;
+	private final WorkShiftService workShiftService;
 	private final ShiftRepo shiftRepo;
 	private final AwardInterpretationRepo awRepo;
 	private final BreakRepo breakRepo;
@@ -147,7 +144,7 @@ class EtljobappApplicationTests {
 		assertEquals(0, ((List<AwardInterpretation>)awRepo.findAll()).size());
 
 		ShiftDto[] shifts = mapper.readValue(new File(jsonFile.getURI()),ShiftDto[].class);
-		shiftService.saveShift(shifts[0],batch);
+		workShiftService.saveShift(shifts[0],batch);
 
 		assertEquals(1, ((List<Shift>)shiftRepo.findAll()).size());
 		assertEquals(1, ((List<Break>)breakRepo.findAll()).size());
@@ -159,7 +156,7 @@ class EtljobappApplicationTests {
 	//this should be @Transactional
 	public void testShiftServiceSaveBatch () throws IOException {
 		ShiftDto[] shifts = mapper.readValue(new File(jsonFile.getURI()),ShiftDto[].class);
-		Batch batch1 = shiftService.createBatch(Arrays.asList(shifts));
+		Batch batch1 = workShiftService.executeBatch(Arrays.asList(shifts));
 
 		assertEquals(1,((List<Batch>)batchRepo.findAll()).size());
 		//test shift failed
@@ -176,7 +173,7 @@ class EtljobappApplicationTests {
 	public void testConvertTimestamp() throws Exception {
 		ShiftDto[] shifts = mapper.readValue(new File(jsonFile.getURI()),ShiftDto[].class);
 		ShiftDto shiftDto = shifts[0];
-		Shift shift = shiftService.saveShift(shiftDto,batch);
+		Shift shift = workShiftService.saveShift(shiftDto,batch);
 		assertEquals(1595526660 * 1000L,shift.getStart().getTime());
 
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");

@@ -12,7 +12,10 @@ import java.util.Date;
 @RedisHash("shifts_breaks")
 @Data
 @NoArgsConstructor
-public class Break {
+public class Break extends AEtlModel {
+
+    private final static long serialVersionUID = -4035167523827984655L;
+
     public Break(BreakDto breakDto, Integer id, String date, Integer timesheetId) {
 
         this.id = breakDto.getId();
@@ -20,13 +23,13 @@ public class Break {
         this.shiftDate = date;
         this.timesheetId = timesheetId;
         if (null != breakDto.getStart())
-            this.start = new Date(breakDto.getStart() * 1000L);
+            this.start = new Date(breakDto.getStart() * multiplier);
         if (null != breakDto.getFinish())
-            this.finish = new Date(breakDto.getFinish() * 1000L);
+            this.finish = new Date(breakDto.getFinish() * multiplier);
         this.length = breakDto.getLength();
         this.paid = breakDto.getPaid();
         if (null != breakDto.getUpdatedAt())
-            this.updatedAt = new Date(breakDto.getUpdatedAt() * 1000L);
+            this.updatedAt = new Date(breakDto.getUpdatedAt() * multiplier);
     }
 
     @Id

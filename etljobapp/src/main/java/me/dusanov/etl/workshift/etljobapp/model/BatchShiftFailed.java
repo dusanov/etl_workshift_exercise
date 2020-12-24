@@ -11,7 +11,8 @@ import org.springframework.data.redis.core.RedisHash;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class BatchShiftFailed {
+public class BatchShiftFailed extends AEtlModel {
+
     private final static long serialVersionUID = -4671670169084511353L;
 
     @Id

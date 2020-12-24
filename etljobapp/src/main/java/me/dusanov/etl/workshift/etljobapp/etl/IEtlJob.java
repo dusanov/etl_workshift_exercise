@@ -1,5 +1,5 @@
 package me.dusanov.etl.workshift.etljobapp.etl;
 
-public interface EtlJob {
+public interface IEtlJob {
     public void execute();
 }

@@ -12,7 +12,9 @@ import org.springframework.data.redis.core.RedisHash;
 @RedisHash("shifts_award_interpretations")
 @Data
 @NoArgsConstructor
-public class AwardInterpretation {
+public class AwardInterpretation extends AEtlModel {
+
+    private final static long serialVersionUID = -133437237819658273L;
 
     public AwardInterpretation(AwardInterpretationDto awardInterpretationDto, Integer id, String date, Integer timesheetId) {
         this.shiftId = id;
@@ -25,9 +27,9 @@ public class AwardInterpretation {
         this.ordinaryHours = awardInterpretationDto.getOrdinaryHours();
         this.cost = awardInterpretationDto.getCost();
         if (null != awardInterpretationDto.getFrom())
-            this.from = new Date(awardInterpretationDto.getFrom() * 1000L);
+            this.from = new Date(awardInterpretationDto.getFrom() * multiplier);
         if (null != awardInterpretationDto.getTo())
-            this.to = new Date(awardInterpretationDto.getTo() * 1000L);
+            this.to = new Date(awardInterpretationDto.getTo() * multiplier);
     }
 
     //@GeneratedValue(strategy = GenerationType.SEQUENCE)

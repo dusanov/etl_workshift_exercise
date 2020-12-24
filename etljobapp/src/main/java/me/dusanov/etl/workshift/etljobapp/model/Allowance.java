@@ -6,12 +6,15 @@ import me.dusanov.etl.workshift.etljobapp.dto.AllowanceDto;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
+
 import java.util.Date;
 
 @RedisHash("shifts_allowances")
 @Data
 @NoArgsConstructor
-public class Allowance {
+public class Allowance extends AEtlModel {
+
+    private final static long serialVersionUID = -6607699404886896923L;
 
     public Allowance(AllowanceDto dto, Integer shiftId, String shiftDate, Integer timesheetId) {
         this.id = dto.getId();
@@ -21,7 +24,7 @@ public class Allowance {
         this.name = dto.getName();
         this.value = dto.getValue();
         if (null != dto.getUpdatedAt())
-            this.updatedAt = new Date(dto.getUpdatedAt() * 1000L);
+            this.updatedAt = new Date(dto.getUpdatedAt() * multiplier);
         this.cost = dto.getCost();
     }
 

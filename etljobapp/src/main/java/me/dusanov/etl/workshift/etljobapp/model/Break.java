@@ -23,13 +23,13 @@ public class Break extends AEtlModel {
         this.shiftDate = date;
         this.timesheetId = timesheetId;
         if (null != breakDto.getStart())
-            this.start = new Date(breakDto.getStart() * multiplier);
+            this.start = new Date(breakDto.getStart() * timestampMultiplier);
         if (null != breakDto.getFinish())
-            this.finish = new Date(breakDto.getFinish() * multiplier);
+            this.finish = new Date(breakDto.getFinish() * timestampMultiplier);
         this.length = breakDto.getLength();
         this.paid = breakDto.getPaid();
         if (null != breakDto.getUpdatedAt())
-            this.updatedAt = new Date(breakDto.getUpdatedAt() * multiplier);
+            this.updatedAt = new Date(breakDto.getUpdatedAt() * timestampMultiplier);
     }
 
     @Id

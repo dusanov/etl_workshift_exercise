@@ -27,9 +27,9 @@ public class AwardInterpretation extends AEtlModel {
         this.ordinaryHours = awardInterpretationDto.getOrdinaryHours();
         this.cost = awardInterpretationDto.getCost();
         if (null != awardInterpretationDto.getFrom())
-            this.from = new Date(awardInterpretationDto.getFrom() * multiplier);
+            this.from = new Date(awardInterpretationDto.getFrom() * timestampMultiplier);
         if (null != awardInterpretationDto.getTo())
-            this.to = new Date(awardInterpretationDto.getTo() * multiplier);
+            this.to = new Date(awardInterpretationDto.getTo() * timestampMultiplier);
     }
 
     //@GeneratedValue(strategy = GenerationType.SEQUENCE)

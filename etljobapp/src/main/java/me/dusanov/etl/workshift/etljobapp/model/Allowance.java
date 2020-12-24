@@ -24,7 +24,7 @@ public class Allowance extends AEtlModel {
         this.name = dto.getName();
         this.value = dto.getValue();
         if (null != dto.getUpdatedAt())
-            this.updatedAt = new Date(dto.getUpdatedAt() * multiplier);
+            this.updatedAt = new Date(dto.getUpdatedAt() * timestampMultiplier);
         this.cost = dto.getCost();
     }
 

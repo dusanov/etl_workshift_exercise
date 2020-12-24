@@ -24,9 +24,9 @@ public class Shift extends AEtlModel {
         this.userId = shiftDto.getUserId();
         this.date = shiftDto.getDate();
         if (null != shiftDto.getStart())
-            this.start = new Date(shiftDto.getStart() * multiplier);
+            this.start = new Date(shiftDto.getStart() * timestampMultiplier);
         if (null != shiftDto.getFinish())
-            this.finish = new Date(shiftDto.getFinish() * multiplier);
+            this.finish = new Date(shiftDto.getFinish() * timestampMultiplier);
         this.departmentId = shiftDto.getDepartmentId();
         this.subCostCentre = shiftDto.getSubCostCentre();
         this.tag = shiftDto.getTag();
@@ -37,15 +37,15 @@ public class Shift extends AEtlModel {
         this.shiftFeedbackId = shiftDto.getShiftFeedbackId();
         this.approvedBy = shiftDto.getApprovedBy();
         if (null != shiftDto.getApprovedAt())
-            this.approvedAt = new Date(Long.valueOf(shiftDto.getApprovedAt()) * multiplier);
+            this.approvedAt = new Date(Long.valueOf(shiftDto.getApprovedAt()) * timestampMultiplier);
         this.cost = shiftDto.getCost();
         this.awardCost = shiftDto.getCostBreakdown().getAwardCost();
         this.allowanceCost = shiftDto.getCostBreakdown().getAllowanceCost();
         if (null != shiftDto.getUpdatedAt())
-            this.updatedAt = new Date(shiftDto.getUpdatedAt() * multiplier);
+            this.updatedAt = new Date(shiftDto.getUpdatedAt() * timestampMultiplier);
         this.recordId = shiftDto.getRecordId();
         if (null != shiftDto.getLastCostedAt())
-            this.lastCostedAt = new Date(shiftDto.getLastCostedAt() * multiplier);
+            this.lastCostedAt = new Date(shiftDto.getLastCostedAt() * timestampMultiplier);
     }
 
     @Id

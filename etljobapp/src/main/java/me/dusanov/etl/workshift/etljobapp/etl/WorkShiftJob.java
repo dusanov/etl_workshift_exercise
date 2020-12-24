@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
-public class WorkShiftJobI implements IEtlJob {
+public class WorkShiftJob implements IEtlJob {
 
     private static final Logger log = LoggerFactory.getLogger(EtljobappApplication.class);
 

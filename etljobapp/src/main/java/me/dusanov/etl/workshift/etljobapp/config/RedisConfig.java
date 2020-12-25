@@ -1,5 +1,8 @@
 package me.dusanov.etl.workshift.etljobapp.config;
 
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
@@ -14,7 +17,12 @@ import java.util.Arrays;
 
 @Configuration
 @EnableRedisRepositories
+@ConfigurationProperties(prefix = "redis.datasource")
 public class RedisConfig {
+
+    @Getter @Setter private String hostname;
+    @Getter @Setter private int port;
+    @Getter @Setter private int dbindex;
 
     @Bean
     public MappingRedisConverter redisConverter(RedisMappingContext mappingContext,
@@ -59,8 +67,9 @@ public class RedisConfig {
 
     @Bean
     public JedisConnectionFactory jedisConnectionFactory() {
-        RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration("localhost", 6379);
+        RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration(hostname, port);
         //redisStandaloneConfiguration.setPassword(RedisPassword.of("yourRedisPasswordIfAny"));
+        redisStandaloneConfiguration.setDatabase(dbindex);
         JedisConnectionFactory jedisConnectionFactory = new JedisConnectionFactory(redisStandaloneConfiguration);
         jedisConnectionFactory.getPoolConfig().setMaxTotal(50);
         jedisConnectionFactory.getPoolConfig().setMaxIdle(50);

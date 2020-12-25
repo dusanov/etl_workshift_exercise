@@ -25,5 +25,4 @@ public class StringToESTDate implements Converter<byte[], EST_TZ_Date> {
         }
         return date;
     }
-
 }

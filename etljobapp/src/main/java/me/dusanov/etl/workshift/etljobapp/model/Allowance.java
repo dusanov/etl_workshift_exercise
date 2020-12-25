@@ -13,7 +13,7 @@ import java.util.Date;
 
 @RedisHash("shifts_allowances")
 @Data
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
 public class Allowance extends AEtlModel {
 

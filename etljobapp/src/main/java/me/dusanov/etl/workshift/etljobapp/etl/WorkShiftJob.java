@@ -35,7 +35,7 @@ public class WorkShiftJob implements IEtlJob {
         List<Integer> allIds = new ArrayList<>(allShiftsFromRestEndpoint.stream().map(ShiftDto::getId).collect(Collectors.toList()));
         List<Integer> processedIds = new ArrayList<>(allShiftsFromLocal.stream().map(Shift::getId).collect(Collectors.toList()));
         List<Integer> failedIds = new ArrayList<>(allShiftsFromLocalFailed.stream().map(BatchShiftFailed::getShiftId).collect(Collectors.toList()));
-
+        //reduce
         allIds.removeAll(processedIds);
         allIds.removeAll(failedIds);
 

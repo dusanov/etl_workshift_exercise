@@ -13,7 +13,7 @@ import java.util.Date;
 
 @RedisHash("shifts_breaks")
 @Data
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
 public class Break extends AEtlModel {
 

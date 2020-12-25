@@ -5,15 +5,13 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import me.dusanov.etl.workshift.etljobapp.config.EST_TZ_Date;
 import me.dusanov.etl.workshift.etljobapp.dto.AwardInterpretationDto;
-
-import java.util.Date;
-
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.redis.core.RedisHash;
 
 @RedisHash("shifts_award_interpretations")
 @Data
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
 public class AwardInterpretation extends AEtlModel {
 
@@ -33,16 +31,14 @@ public class AwardInterpretation extends AEtlModel {
             this.from = new EST_TZ_Date(awardInterpretationDto.getFrom() * timestampMilliMultiplier);
         if (null != awardInterpretationDto.getTo())
             this.to = new EST_TZ_Date(awardInterpretationDto.getTo() * timestampMilliMultiplier);
+        //do this last lol
+        this.id = this.hashCode();
     }
 
-    //@GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Id
-    private Integer id;
-    // foreign key to shift.id
+    private int id;
     private Integer shiftId;
-    //shift_date (corresponds to ‘date’ in shift object)
     private String shiftDate;
-    //sheet_id (corresponds to ‘sheet_id’ in shift object);
     private Integer timesheetId;
     private Double units;
     private String date;

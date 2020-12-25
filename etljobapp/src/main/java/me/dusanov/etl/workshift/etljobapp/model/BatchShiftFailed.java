@@ -10,7 +10,7 @@ import org.springframework.data.redis.core.RedisHash;
 
 @RedisHash("shifts_failed")
 @Data
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
 @AllArgsConstructor
 public class BatchShiftFailed extends AEtlModel {

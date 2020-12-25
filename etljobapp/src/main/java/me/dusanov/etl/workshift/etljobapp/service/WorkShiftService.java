@@ -9,8 +9,6 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,29 +27,25 @@ public class WorkShiftService {
     private final AwardInterpretationRepo awardInterpretationRepo;
     private final AllowanceRepo allowanceRepo;
 
-    /* Transactions are not tested for Redis repos */
-    @Transactional(propagation = Propagation.REQUIRED,
-                    rollbackFor = Exception.class)
-    public Batch executeBatch(List<ShiftDto> shiftDtoList) {
+    public Batch executeBatch(@NotNull List<ShiftDto> shiftDtoList) {
         Batch batch = batchRepo.save(new Batch());
         shiftDtoList.forEach( dto -> {
             try { saveShift(dto,batch); }
             catch (Exception e){
-                log.error("caught error in batch save: " + e.getMessage());
+                log.error("caught error in saveShift: " + e.getMessage());
                 try {
                     shiftFailedRepo.save(
                         new BatchShiftFailed(dto.getId(),e.getMessage(),mapper.writeValueAsString(dto), batch.getId()));
-                  log.info("Saved new BatchShiftFailed");
+                  log.error("BatchShiftFailed has been saved");
                 } catch (Exception fatal){
-                  log.error(String.format("fatal error happened for batchId %s, shiftId %s: %s",batch.getId(),dto.getId(), fatal.getMessage()),fatal);
+                  log.error(String.format("fatal error happened for batchId %s, shiftId %s: %s\ndto: %s",
+                                            batch.getId(), dto.getId(), fatal.getMessage(), dto), fatal);
                 }
             }
         });
         return batch;
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW,
-                  rollbackFor = Exception.class)
     public Shift saveShift(@NotNull ShiftDto shiftDto, @NotNull Batch batch) {
 
         Shift shift = shiftRepo.save(new Shift(shiftDto,batch.getId()));

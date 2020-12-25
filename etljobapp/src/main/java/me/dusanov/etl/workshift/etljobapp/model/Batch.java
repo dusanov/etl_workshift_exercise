@@ -10,7 +10,7 @@ import java.util.UUID;
 
 @RedisHash("batches")
 @Data
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = false)
 public class Batch extends AEtlModel {
 
     private final static long serialVersionUID = -4671670169084511353L;

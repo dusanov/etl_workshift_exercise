@@ -43,7 +43,7 @@ public class WorkShiftJob implements IEtlJob {
 
             String ids = allIds.stream().map(id -> (id.toString())).collect(Collectors.joining(","));
             List<ShiftDto> dtos = clientService.getSome(ids);
-            log.info(String.format("about to create a batch for ids: %s",ids));
+            log.info(String.format("about to create a batch for shift ids: %s",ids));
             Batch batch = workShiftService.executeBatch(dtos);
             log.info(String.format("batch %s done",batch.getId(),ids));
 

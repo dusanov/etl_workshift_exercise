@@ -12,12 +12,8 @@ public class EST_TZ_Date {
 
     private final Date date;
 
-    public EST_TZ_Date(String date) throws Exception {
-        try {
-            this.date = sdf.parse(date);
-        } catch (ParseException e) {
-            throw new Exception(e);
-        }
+    public EST_TZ_Date(String date) throws ParseException {
+        this.date = sdf.parse(date);
     }
 
     public EST_TZ_Date(Long timestamp){

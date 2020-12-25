@@ -23,7 +23,7 @@ public class RedisConfig {
 
         MappingRedisConverter mappingRedisConverter = new MappingRedisConverter(mappingContext, null, referenceResolver,
                 customTypeMapper());
-        mappingRedisConverter.setCustomConversions(redisCustomConversions(new DateToString(),new StringToDate()));
+        mappingRedisConverter.setCustomConversions(redisCustomConversions(new ESTDateToString(),new StringToESTDate()));
         return mappingRedisConverter;
     }
 
@@ -31,16 +31,13 @@ public class RedisConfig {
     public RedisTypeMapper customTypeMapper() {
         return new CustomRedisTypeMapper();
     }
-
-
-
     class CustomRedisTypeMapper extends DefaultRedisTypeMapper { }
 
 
     @Bean
-    public RedisCustomConversions redisCustomConversions(DateToString dateToString,
-                                                         StringToDate stringToDate) {
-        return new RedisCustomConversions(Arrays.asList(dateToString, stringToDate));
+    public RedisCustomConversions redisCustomConversions(ESTDateToString dateToString,
+                                                         StringToESTDate stringToESTDate) {
+        return new RedisCustomConversions(Arrays.asList(dateToString, stringToESTDate));
     }
 
     @Bean

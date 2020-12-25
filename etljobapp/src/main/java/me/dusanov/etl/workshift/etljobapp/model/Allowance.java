@@ -1,7 +1,9 @@
 package me.dusanov.etl.workshift.etljobapp.model;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import me.dusanov.etl.workshift.etljobapp.config.EST_TZ_Date;
 import me.dusanov.etl.workshift.etljobapp.dto.AllowanceDto;
 
 import org.springframework.data.annotation.Id;
@@ -11,6 +13,7 @@ import java.util.Date;
 
 @RedisHash("shifts_allowances")
 @Data
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 public class Allowance extends AEtlModel {
 
@@ -24,7 +27,7 @@ public class Allowance extends AEtlModel {
         this.name = dto.getName();
         this.value = dto.getValue();
         if (null != dto.getUpdatedAt())
-            this.updatedAt = new Date(dto.getUpdatedAt() * timestampMultiplier);
+            this.updatedAt = new EST_TZ_Date(dto.getUpdatedAt() * timestampMilliMultiplier);
         this.cost = dto.getCost();
     }
 
@@ -38,6 +41,6 @@ public class Allowance extends AEtlModel {
     private Integer timesheetId;
     private String name;
     private Double value;
-    private Date updatedAt;
+    private EST_TZ_Date updatedAt;
     private Double cost;
 }

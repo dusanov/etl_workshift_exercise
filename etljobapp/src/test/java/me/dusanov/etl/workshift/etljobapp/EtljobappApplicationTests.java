@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -63,8 +64,6 @@ class EtljobappApplicationTests {
 	@Getter
 	@Setter
 	private String url;
-	private final Batch batch = new Batch();
-
 	private MockMvc mockMvc;
 	private MockRestServiceServer mockServer;
 	private final ObjectMapper mapper = new ObjectMapper();
@@ -120,18 +119,19 @@ class EtljobappApplicationTests {
 		assertNotNull(resp.getBody()[0]);
 
 		assertNotNull(resp.getBody()[0].getTimesheetId());
-		assertTrue(resp.getBody()[0].getTimesheetId().equals(47237));
-		assertTrue(resp.getBody()[0].getCostBreakdown().getAwardCost().equals(136.16046));
-		assertTrue(resp.getBody()[0].getAwardInterpretation().get(0).getExportName().equals("SOH"));
-		assertTrue(resp.getBody()[0].getAwardInterpretation().get(3).getCost().equals(0.69));
+		assertEquals((int) resp.getBody()[0].getTimesheetId(), 47237);
+		assertEquals(resp.getBody()[0].getCostBreakdown().getAwardCost(), 136.16046);
+		assertEquals(resp.getBody()[0].getAwardInterpretation().get(0).getExportName(), "SOH");
+		assertEquals(resp.getBody()[0].getAwardInterpretation().get(3).getCost(), 0.69);
 
 	}
 
 	@Test
 	//this should be @Transactional
 	public void testBatchCreation (){
-		Batch b = batchRepo.save(new Batch());
-		assertEquals(b.getId(), batchRepo.findById(b.getId()).get().getId());
+		Batch batch = batchRepo.save(new Batch());
+		assertEquals(batch.getId(), batchRepo.findById(batch.getId()).get().getId());
+		assertEquals(batch.getDateCreated().getTime(),batchRepo.findById(batch.getId()).get().getDateCreated().getTime());
 	}
 
 	@Test
@@ -144,6 +144,7 @@ class EtljobappApplicationTests {
 		assertEquals(0, ((List<AwardInterpretation>)awRepo.findAll()).size());
 
 		ShiftDto[] shifts = mapper.readValue(new File(jsonFile.getURI()),ShiftDto[].class);
+		Batch batch = new Batch();
 		workShiftService.saveShift(shifts[0],batch);
 
 		assertEquals(1, ((List<Shift>)shiftRepo.findAll()).size());
@@ -156,7 +157,7 @@ class EtljobappApplicationTests {
 	//this should be @Transactional
 	public void testShiftServiceSaveBatch () throws IOException {
 		ShiftDto[] shifts = mapper.readValue(new File(jsonFile.getURI()),ShiftDto[].class);
-		Batch batch1 = workShiftService.executeBatch(Arrays.asList(shifts));
+		workShiftService.executeBatch(Arrays.asList(shifts));
 
 		assertEquals(1,((List<Batch>)batchRepo.findAll()).size());
 		//test shift failed
@@ -173,12 +174,8 @@ class EtljobappApplicationTests {
 	public void testConvertTimestamp() throws Exception {
 		ShiftDto[] shifts = mapper.readValue(new File(jsonFile.getURI()),ShiftDto[].class);
 		ShiftDto shiftDto = shifts[0];
-		Shift shift = workShiftService.saveShift(shiftDto,batch);
+		Shift shift = workShiftService.saveShift(shiftDto,new Batch());
 		assertEquals(1595526660 * 1000L,shift.getStart().getTime());
-
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		sdf.setTimeZone(TimeZone.getTimeZone("America/New_York"));
-
-		assertEquals("2020-07-23 13:51:00",sdf.format(shift.getStart()));
+		assertEquals("2020-07-23 13:51:00",shift.getStart().toString());
 	}
 }

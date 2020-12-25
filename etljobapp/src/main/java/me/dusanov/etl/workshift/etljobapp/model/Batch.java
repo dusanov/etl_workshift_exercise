@@ -1,6 +1,7 @@
 package me.dusanov.etl.workshift.etljobapp.model;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 
@@ -9,6 +10,7 @@ import java.util.UUID;
 
 @RedisHash("batches")
 @Data
+@EqualsAndHashCode(callSuper = true)
 public class Batch extends AEtlModel {
 
     private final static long serialVersionUID = -4671670169084511353L;
@@ -20,6 +22,5 @@ public class Batch extends AEtlModel {
 
     @Id
     private String id;
-
     private Date dateCreated;
 }

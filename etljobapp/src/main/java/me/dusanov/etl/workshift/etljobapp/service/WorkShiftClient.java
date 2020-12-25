@@ -21,8 +21,7 @@ public class WorkShiftClient {
     private final RestTemplate restTemplate = new RestTemplate();
 
     public ShiftDto get(Integer id){
-        ShiftDto dto = restTemplate.getForObject(url+"/" + id, ShiftDto.class);
-        return dto;
+        return restTemplate.getForObject(url+"/" + id, ShiftDto.class);
     }
 
     public List<ShiftDto> getSome(String ids){

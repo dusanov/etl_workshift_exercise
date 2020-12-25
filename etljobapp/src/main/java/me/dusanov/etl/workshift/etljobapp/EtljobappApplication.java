@@ -20,7 +20,7 @@ public class EtljobappApplication {
 
 	@Profile("!test")
 	@Bean
-	public CommandLineRunner run() throws Exception {
+	public CommandLineRunner run() {
 		return args -> {
 			workShiftJob.execute();
 			//TODO:investigate why spring boot gets stuck and doesn't exit

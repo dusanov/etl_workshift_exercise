@@ -1,7 +1,9 @@
 package me.dusanov.etl.workshift.etljobapp.model;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import me.dusanov.etl.workshift.etljobapp.config.EST_TZ_Date;
 import me.dusanov.etl.workshift.etljobapp.dto.ShiftDto;
 
 import org.springframework.data.annotation.Id;
@@ -11,6 +13,7 @@ import java.util.Date;
 
 @RedisHash("shifts")
 @Data
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 public class Shift extends AEtlModel {
 
@@ -24,9 +27,9 @@ public class Shift extends AEtlModel {
         this.userId = shiftDto.getUserId();
         this.date = shiftDto.getDate();
         if (null != shiftDto.getStart())
-            this.start = new Date(shiftDto.getStart() * timestampMultiplier);
+            this.start = new EST_TZ_Date(shiftDto.getStart() * timestampMilliMultiplier);
         if (null != shiftDto.getFinish())
-            this.finish = new Date(shiftDto.getFinish() * timestampMultiplier);
+            this.finish = new EST_TZ_Date(shiftDto.getFinish() * timestampMilliMultiplier);
         this.departmentId = shiftDto.getDepartmentId();
         this.subCostCentre = shiftDto.getSubCostCentre();
         this.tag = shiftDto.getTag();
@@ -37,15 +40,15 @@ public class Shift extends AEtlModel {
         this.shiftFeedbackId = shiftDto.getShiftFeedbackId();
         this.approvedBy = shiftDto.getApprovedBy();
         if (null != shiftDto.getApprovedAt())
-            this.approvedAt = new Date(Long.valueOf(shiftDto.getApprovedAt()) * timestampMultiplier);
+            this.approvedAt = new EST_TZ_Date(Long.parseLong(shiftDto.getApprovedAt()) * timestampMilliMultiplier);
         this.cost = shiftDto.getCost();
         this.awardCost = shiftDto.getCostBreakdown().getAwardCost();
         this.allowanceCost = shiftDto.getCostBreakdown().getAllowanceCost();
         if (null != shiftDto.getUpdatedAt())
-            this.updatedAt = new Date(shiftDto.getUpdatedAt() * timestampMultiplier);
+            this.updatedAt = new EST_TZ_Date(shiftDto.getUpdatedAt() * timestampMilliMultiplier);
         this.recordId = shiftDto.getRecordId();
         if (null != shiftDto.getLastCostedAt())
-            this.lastCostedAt = new Date(shiftDto.getLastCostedAt() * timestampMultiplier);
+            this.lastCostedAt = new EST_TZ_Date(shiftDto.getLastCostedAt() * timestampMilliMultiplier);
     }
 
     @Id
@@ -53,8 +56,8 @@ public class Shift extends AEtlModel {
     private Integer timesheetId;
     private Integer userId;
     private String date;
-    private Date start;
-    private Date finish;
+    private EST_TZ_Date start;
+    private EST_TZ_Date finish;
     private Integer departmentId;
     private String subCostCentre;
     private String tag;
@@ -64,13 +67,13 @@ public class Shift extends AEtlModel {
     private Integer leaveRequestId;
     private Integer shiftFeedbackId;
     private Integer approvedBy;
-    private Date approvedAt;
+    private EST_TZ_Date approvedAt;
     private Double cost;
     private Double awardCost;
     private Double allowanceCost;
-    private Date updatedAt;
+    private EST_TZ_Date updatedAt;
     private Integer recordId;
-    private Date lastCostedAt;
+    private EST_TZ_Date lastCostedAt;
     //many to one
     private String batchId;
 }

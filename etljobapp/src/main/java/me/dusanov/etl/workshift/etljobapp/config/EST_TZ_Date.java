@@ -7,7 +7,7 @@ import java.util.TimeZone;
 
 public class EST_TZ_Date {
 
-    private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     static {sdf.setTimeZone(TimeZone.getTimeZone("America/New_York"));}
 
     private final Date date;

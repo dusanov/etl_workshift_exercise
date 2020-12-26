@@ -3,5 +3,5 @@ package me.dusanov.etl.workshift.etljobapp.model;
 import java.io.Serializable;
 
 public abstract class AEtlModel implements Serializable {
-    static long timestampMilliMultiplier = 1000L;
+    static final long timestampMilliMultiplier = 1000L;
 }

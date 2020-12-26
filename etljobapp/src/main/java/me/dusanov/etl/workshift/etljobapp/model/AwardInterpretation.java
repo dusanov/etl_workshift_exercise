@@ -36,7 +36,7 @@ public class AwardInterpretation extends AEtlModel {
     }
 
     @Id
-    private int id;
+    private Integer id;
     private Integer shiftId;
     private String shiftDate;
     private Integer timesheetId;

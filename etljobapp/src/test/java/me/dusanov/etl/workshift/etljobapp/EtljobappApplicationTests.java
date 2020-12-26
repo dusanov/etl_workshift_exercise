@@ -233,17 +233,23 @@ class EtljobappApplicationTests {
 		ShiftDto[] shifts = mapper.readValue(new File(jsonFileDuplicateAW.getURI()),ShiftDto[].class);
 
 		WorkShiftService service = new WorkShiftService(
-				shiftRepo, shiftFailedRepo,batchRepo,breakRepo,awRepo,mockAllowanceRepo);
+				shiftRepo,shiftFailedRepo,batchRepo,breakRepo,awRepo,mockAllowanceRepo);
 
-		Allowance allowance = new Allowance();
-		List<Allowance> allowanceList = new ArrayList<Allowance>();
-		allowanceList.add(allowance);
 		Mockito.lenient()
 				.when(mockAllowanceRepo.saveAll(Mockito.anyCollection()))
 				.thenThrow(new RuntimeException("something horrible happened"));
 
-		service.executeBatch(Arrays.asList( shifts ));
-		assertEquals(1, ((List<BatchShiftFailed>)shiftFailedRepo.findAll()).size());
+		String batchId = service.executeBatch(Arrays.asList( shifts )).getId();
+
+		List<BatchShiftFailed> failedOnes = (List<BatchShiftFailed>) shiftFailedRepo.findAll();
+		assertEquals(1, failedOnes.size());
+
+		BatchShiftFailed fail = failedOnes.get(0);
+		assertEquals("something horrible happened", fail.getErrorMessage());
+		assertEquals(batchId, fail.getBatchId());
+		assertEquals(shifts[0].getId(), fail.getShiftId());
+		assertEquals(shifts[0], mapper.readValue(fail.getDto(),ShiftDto.class));
+
 	}
 
 }

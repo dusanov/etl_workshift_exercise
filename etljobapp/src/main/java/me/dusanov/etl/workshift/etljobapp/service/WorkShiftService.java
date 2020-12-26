@@ -38,8 +38,8 @@ public class WorkShiftService {
                         new BatchShiftFailed(dto.getId(),e.getMessage(),mapper.writeValueAsString(dto), batch.getId()));
                   log.error("BatchShiftFailed has been saved");
                 } catch (Exception fatal){
-                  log.error(String.format("fatal error happened for batchId %s, shiftId %s: %s\ndto: %s",
-                                            batch.getId(), dto.getId(), fatal.getMessage(), dto), fatal);
+                  log.error(String.format("fatal error happened for batchId %s, shiftId %s: %s\nroot cause: %s\ndto: %s",
+                                            batch.getId(), dto.getId(), fatal.getMessage(), e.getMessage(), dto), e);
                 }
             }
         });

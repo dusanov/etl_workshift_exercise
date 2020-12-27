@@ -24,6 +24,7 @@ public class RedisConfig {
     @Getter @Setter private int port;
     @Getter @Setter private int dbindex;
 
+    /**/
     @Bean
     public MappingRedisConverter redisConverter(RedisMappingContext mappingContext,
                                                 RedisCustomConversions customConversions,
@@ -47,6 +48,8 @@ public class RedisConfig {
                                                          StringToESTDate stringToESTDate) {
         return new RedisCustomConversions(Arrays.asList(dateToString, stringToESTDate));
     }
+
+
 
     @Bean
     public RedisTemplate<String, Object> redisTemplate() {

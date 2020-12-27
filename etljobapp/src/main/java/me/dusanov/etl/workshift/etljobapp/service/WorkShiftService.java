@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -44,6 +45,7 @@ public class WorkShiftService {
         });
     }
 
+    @Transactional(rollbackFor = RuntimeException.class)
     public Shift saveShift(@NotNull ShiftDto shiftDto, @NotNull Batch batch) {
 
         Shift shift = shiftRepo.save(new Shift(shiftDto,batch.getId()));

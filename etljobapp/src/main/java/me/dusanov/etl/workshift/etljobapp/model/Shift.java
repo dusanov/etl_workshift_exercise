@@ -8,6 +8,7 @@ import me.dusanov.etl.workshift.etljobapp.dto.ShiftDto;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
+import org.springframework.data.redis.core.index.Indexed;
 
 import java.util.Date;
 
@@ -52,6 +53,7 @@ public class Shift extends AEtlModel {
 
     @Id
     private Integer id;
+    @Indexed
     private Integer timesheetId;
     private Integer userId;
     private String date;

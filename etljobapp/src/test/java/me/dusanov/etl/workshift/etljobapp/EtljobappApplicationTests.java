@@ -10,19 +10,14 @@ import me.dusanov.etl.workshift.etljobapp.model.*;
 import me.dusanov.etl.workshift.etljobapp.repo.*;
 import me.dusanov.etl.workshift.etljobapp.service.WorkShiftClient;
 import me.dusanov.etl.workshift.etljobapp.service.WorkShiftService;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.json.BasicJsonTester;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -46,7 +41,8 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.validateMockitoUsage;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
 
 @ConfigurationProperties(prefix = "workshift.endpoint")
@@ -68,6 +64,7 @@ class EtljobappApplicationTests {
 
 	@Mock ExtractFailedRepo extractFailedRepo;
 	@Mock AllowanceRepo mockAllowanceRepo;
+	@Mock BreakRepo mockBreakRepo;
 	@Mock RestTemplate mockRestTemplate;
 	@InjectMocks
 	WorkShiftClient client;// = new WorkShiftClient(extractFailedRepo);
@@ -223,12 +220,12 @@ class EtljobappApplicationTests {
 		assertEquals(0, ((List<BatchExtractFailed>) extractFailedRepo.findAll()).size());
 
 		Mockito.when(mockRestTemplate.getForObject("null/1",ShiftDto.class))
-				.thenThrow(new RuntimeException("something horrible happend"));
+				.thenThrow(new RuntimeException("something horrible happened"));
 
 		Mockito.when(extractFailedRepo.save(Mockito.mock(BatchExtractFailed.class)))
 				.thenReturn(Mockito.mock(BatchExtractFailed.class));
 
-		Batch batch = new Batch();
+		Batch batch = workShiftService.createNewBatch(new Batch());
 		client.get(batch,1);
 
 		//null/1 as url is because config is not injected into test
@@ -270,6 +267,47 @@ class EtljobappApplicationTests {
 		assertEquals(shifts[0].getId(), fail.getShiftId());
 		assertEquals(shifts[0], mapper.readValue(fail.getDto(),ShiftDto.class));
 
+	}
+
+	//Transactional can not work with the redis key type conversions for some reason
+	//https://stackoverflow.com/questions/41264091/spring-data-redis-transactional-support-on-repository
+	@Disabled
+	@Test
+	public void testRollback() throws IOException {
+		// configure break repo mock to throw exception on saveAll
+		//call workShiftService.executeBatch with the breakRepo mocked up
+		//validate that the break repo mock was called
+		// validate that the shift,allowances and award interpretations were rolled back
+		// validate that the BatchShiftFailed has been saved
+		// validate that the Batch has been saved
+
+		assertEquals(0, ((List<Shift>)shiftRepo.findAll()).size());
+		assertEquals(0, ((List<Allowance>)allowanceRepo.findAll()).size());
+		assertEquals(0, ((List<AwardInterpretation>)awRepo.findAll()).size());
+		assertEquals(0, ((List<Break>)breakRepo.findAll()).size());
+		assertEquals(0, ((List<BatchShiftFailed>)shiftFailedRepo.findAll()).size());
+		assertEquals(0, ((List<Batch>)batchRepo.findAll()).size());
+
+		ShiftDto[] shifts = mapper.readValue(new File(jsonFileDuplicateAW.getURI()),ShiftDto[].class);
+
+		WorkShiftService service = new WorkShiftService(
+				shiftRepo,shiftFailedRepo,batchRepo,mockBreakRepo,awRepo,allowanceRepo);
+
+		Mockito.lenient()
+				.when(mockBreakRepo.saveAll(Mockito.anyCollection()))
+				.thenThrow(new RuntimeException("something horrible happened"));
+
+		Batch batch = service.createNewBatch(new Batch());
+		service.executeBatch(batch,Arrays.asList( shifts ));
+
+		Mockito.verify(mockBreakRepo).saveAll(Mockito.anyCollection());
+
+		assertEquals(0, ((List<Shift>)shiftRepo.findAll()).size());
+		assertEquals(0, ((List<Allowance>)allowanceRepo.findAll()).size());
+		assertEquals(0, ((List<AwardInterpretation>)awRepo.findAll()).size());
+		assertEquals(0, ((List<Break>)breakRepo.findAll()).size());
+		assertEquals(1, ((List<BatchShiftFailed>)shiftFailedRepo.findAll()).size());
+		assertEquals(1, ((List<Batch>)batchRepo.findAll()).size());
 	}
 
 }

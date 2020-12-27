@@ -27,11 +27,10 @@ public class WorkShiftService {
     private final AwardInterpretationRepo awardInterpretationRepo;
     private final AllowanceRepo allowanceRepo;
 
-    public Batch executeBatch(@NotNull List<ShiftDto> shiftDtoList) {
-        Batch batch = batchRepo.save(new Batch());
+    public void executeBatch(@NotNull Batch batch, @NotNull List<ShiftDto> shiftDtoList) {
         shiftDtoList.forEach( dto -> {
             try { saveShift(dto,batch); }
-            catch (Exception e){
+            catch (RuntimeException e){
                 log.error("caught error in saveShift: " + e.getMessage());
                 try {
                     shiftFailedRepo.save(
@@ -43,7 +42,6 @@ public class WorkShiftService {
                 }
             }
         });
-        return batch;
     }
 
     public Shift saveShift(@NotNull ShiftDto shiftDto, @NotNull Batch batch) {
@@ -76,6 +74,7 @@ public class WorkShiftService {
         return shift;
     }
 
+    public Batch createNewBatch(Batch batch) { return batchRepo.save(batch); }
     public List<Shift> getAll() {
         return (List<Shift>) shiftRepo.findAll();
     }

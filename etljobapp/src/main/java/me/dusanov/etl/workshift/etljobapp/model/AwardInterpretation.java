@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 import me.dusanov.etl.workshift.etljobapp.config.EST_TZ_Date;
 import me.dusanov.etl.workshift.etljobapp.dto.AwardInterpretationDto;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.Transient;
 import org.springframework.data.redis.core.RedisHash;
 
 @RedisHash("shifts_award_interpretations")
@@ -31,8 +30,8 @@ public class AwardInterpretation extends AEtlModel {
             this.from = new EST_TZ_Date(awardInterpretationDto.getFrom() * timestampMilliMultiplier);
         if (null != awardInterpretationDto.getTo())
             this.to = new EST_TZ_Date(awardInterpretationDto.getTo() * timestampMilliMultiplier);
-        //do this last lol
-        this.id = this.hashCode();
+        //don't do this - someone might get a salary cut
+        //this.id = this.hashCode();
     }
 
     @Id

@@ -8,14 +8,21 @@ import lombok.Setter;
 import me.dusanov.etl.workshift.etljobapp.dto.ShiftDto;
 import me.dusanov.etl.workshift.etljobapp.model.*;
 import me.dusanov.etl.workshift.etljobapp.repo.*;
+import me.dusanov.etl.workshift.etljobapp.service.WorkShiftClient;
 import me.dusanov.etl.workshift.etljobapp.service.WorkShiftService;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.json.BasicJsonTester;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -28,17 +35,17 @@ import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.validateMockitoUsage;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
 
@@ -56,9 +63,14 @@ class EtljobappApplicationTests {
 	private final AwardInterpretationRepo awRepo;
 	private final BreakRepo breakRepo;
 	private final AllowanceRepo allowanceRepo;
-	@Mock AllowanceRepo mockAllowanceRepo;
 	private final BatchRepo batchRepo;
 	private final ShiftFailedRepo shiftFailedRepo;
+
+	@Mock ExtractFailedRepo extractFailedRepo;
+	@Mock AllowanceRepo mockAllowanceRepo;
+	@Mock RestTemplate mockRestTemplate;
+	@InjectMocks
+	WorkShiftClient client;// = new WorkShiftClient(extractFailedRepo);
 
 	@Value("classpath:/shift_data_326872_example.json")
 	Resource jsonFile;
@@ -92,8 +104,9 @@ class EtljobappApplicationTests {
 		allowanceRepo.deleteAll();
 		awRepo.deleteAll();
 		shiftFailedRepo.deleteAll();
+		//make sure that mocked up calls really happened
+		validateMockitoUsage();
 	}
-
 
 	@Test
 	void testMockedResponseFromAJsonFileToString() throws Exception {
@@ -161,11 +174,10 @@ class EtljobappApplicationTests {
 	}
 
 	@Test
-	public void testShiftServiceSaveBatch () throws IOException {
+	public void testShiftServiceExecuteBatch () throws IOException {
 		ShiftDto[] shifts = mapper.readValue(new File(jsonFile.getURI()),ShiftDto[].class);
-		workShiftService.executeBatch(Arrays.asList(shifts));
+		workShiftService.executeBatch(new Batch(),Arrays.asList(shifts));
 
-		assertEquals(1,((List<Batch>)batchRepo.findAll()).size());
 		//test shift failed
 		assertEquals(0, ((List<BatchShiftFailed>)shiftFailedRepo.findAll()).size());
 		assertEquals(1, ((List<Shift>)shiftRepo.findAll()).size());
@@ -190,7 +202,9 @@ class EtljobappApplicationTests {
 		Shift shift = workShiftService.saveShift(shiftDto,new Batch());
 		assertEquals(5, shiftDto.getAwardInterpretation().size());
 		//we expect 4 records since there's one duplicate
-		assertEquals(4, ((List<AwardInterpretation>)awRepo.findAll()).size());
+		//assertEquals(4, ((List<AwardInterpretation>)awRepo.findAll()).size());
+		// actually business reqs changed, we expect 5
+		assertEquals(5, ((List<AwardInterpretation>)awRepo.findAll()).size());
 	}
 
 	@Test
@@ -204,19 +218,22 @@ class EtljobappApplicationTests {
 	}
 
 	@Test
-	public void testMaxIntFail() throws Exception {
-		mockServer.expect(ExpectedCount.once(),
-				requestTo(new URI("http://localhost:8080/api/v1/shifts/1")))
-				.andExpect(method(HttpMethod.GET))
-				.andRespond(withStatus(HttpStatus.OK)
-						.contentType(MediaType.APPLICATION_JSON)
-						.body(jsonTester.from(jsonFileGtMaxInt).getJson())
-				);
+	public void testExtractFail() throws Exception {
 
-		Assertions.assertThrows(RestClientException.class, () -> {
-			ResponseEntity<ShiftDto[]> resp = restTemplate.getForEntity("http://localhost:8080/api/v1/shifts/1", ShiftDto[].class);
-		});
-		mockServer.verify();
+		assertEquals(0, ((List<BatchExtractFailed>) extractFailedRepo.findAll()).size());
+
+		Mockito.when(mockRestTemplate.getForObject("null/1",ShiftDto.class))
+				.thenThrow(new RuntimeException("something horrible happend"));
+
+		Mockito.when(extractFailedRepo.save(Mockito.mock(BatchExtractFailed.class)))
+				.thenReturn(Mockito.mock(BatchExtractFailed.class));
+
+		Batch batch = new Batch();
+		client.get(batch,1);
+
+		//null/1 as url is because config is not injected into test
+		Mockito.verify(mockRestTemplate).getForObject("null/1",ShiftDto.class);
+		Mockito.verify(extractFailedRepo).save(Mockito.any(BatchExtractFailed.class));
 	}
 
 	@Test
@@ -239,14 +256,17 @@ class EtljobappApplicationTests {
 				.when(mockAllowanceRepo.saveAll(Mockito.anyCollection()))
 				.thenThrow(new RuntimeException("something horrible happened"));
 
-		String batchId = service.executeBatch(Arrays.asList( shifts )).getId();
+		Batch batch = new Batch();
+		service.executeBatch(batch,Arrays.asList( shifts ));
+
+		Mockito.verify(mockAllowanceRepo).saveAll(Mockito.anyCollection());
 
 		List<BatchShiftFailed> failedOnes = (List<BatchShiftFailed>) shiftFailedRepo.findAll();
 		assertEquals(1, failedOnes.size());
 
 		BatchShiftFailed fail = failedOnes.get(0);
 		assertEquals("something horrible happened", fail.getErrorMessage());
-		assertEquals(batchId, fail.getBatchId());
+		assertEquals(batch.getId(), fail.getBatchId());
 		assertEquals(shifts[0].getId(), fail.getShiftId());
 		assertEquals(shifts[0], mapper.readValue(fail.getDto(),ShiftDto.class));
 

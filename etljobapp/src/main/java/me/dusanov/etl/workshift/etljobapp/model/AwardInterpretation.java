@@ -1,17 +1,20 @@
 package me.dusanov.etl.workshift.etljobapp.model;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import me.dusanov.etl.workshift.etljobapp.config.EST_TZ_Date;
 import me.dusanov.etl.workshift.etljobapp.dto.AwardInterpretationDto;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.redis.core.RedisHash;
 
-import javax.persistence.*;
-import java.util.Date;
-
-@Entity
-@Table(name = "shift_award_interpretations")
+@RedisHash("shifts_award_interpretations")
 @Data
+@EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
-public class AwardInterpretation {
+public class AwardInterpretation extends AEtlModel {
+
+    private final static long serialVersionUID = -133437237819658273L;
 
     public AwardInterpretation(AwardInterpretationDto awardInterpretationDto, Integer id, String date, Integer timesheetId) {
         this.shiftId = id;
@@ -24,19 +27,17 @@ public class AwardInterpretation {
         this.ordinaryHours = awardInterpretationDto.getOrdinaryHours();
         this.cost = awardInterpretationDto.getCost();
         if (null != awardInterpretationDto.getFrom())
-            this.from = new Date(awardInterpretationDto.getFrom() * 1000L);
+            this.from = new EST_TZ_Date(awardInterpretationDto.getFrom() * timestampMilliMultiplier);
         if (null != awardInterpretationDto.getTo())
-            this.to = new Date(awardInterpretationDto.getTo() * 1000L);
+            this.to = new EST_TZ_Date(awardInterpretationDto.getTo() * timestampMilliMultiplier);
+        //don't do this - someone might get a salary cut
+        //this.id = this.hashCode();
     }
 
-    @Id @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @Id
     private Integer id;
-    // foreign key to shift.id
     private Integer shiftId;
-    //shift_date (corresponds to ‘date’ in shift object)
     private String shiftDate;
-    //sheet_id (corresponds to ‘sheet_id’ in shift object);
-    @Column(name="sheet_id")
     private Integer timesheetId;
     private Double units;
     private String date;
@@ -44,8 +45,6 @@ public class AwardInterpretation {
     private String secondaryExportName;
     private Boolean ordinaryHours;
     private Double cost;
-    @Column(name="\"from\"")
-    private Date from;
-    @Column(name="\"to\"")
-    private Date to;
+    private EST_TZ_Date from;
+    private EST_TZ_Date to;
 }

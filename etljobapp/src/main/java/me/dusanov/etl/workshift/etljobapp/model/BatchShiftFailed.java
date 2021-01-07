@@ -2,22 +2,24 @@ package me.dusanov.etl.workshift.etljobapp.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.redis.core.RedisHash;
 
-@Entity
-@Table(name = "batches_shifts_failed")
+@RedisHash("shifts_failed")
 @Data
+@EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
 @AllArgsConstructor
-public class BatchShiftFailed {
+public class BatchShiftFailed extends AEtlModel {
+
     private final static long serialVersionUID = -4671670169084511353L;
 
     @Id
     private Integer shiftId;
     private String errorMessage;
-    @Lob
     private String dto;
     private String batchId;
 }

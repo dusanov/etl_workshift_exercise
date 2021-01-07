@@ -1,20 +1,24 @@
 package me.dusanov.etl.workshift.etljobapp.model;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import me.dusanov.etl.workshift.etljobapp.config.EST_TZ_Date;
 import me.dusanov.etl.workshift.etljobapp.dto.BreakDto;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.redis.core.RedisHash;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+
 import java.util.Date;
 
-@Entity
-@Table(name = "shift_breaks")
+@RedisHash("shifts_breaks")
 @Data
+@EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
-public class Break {
+public class Break extends AEtlModel {
+
+    private final static long serialVersionUID = -4035167523827984655L;
+
     public Break(BreakDto breakDto, Integer id, String date, Integer timesheetId) {
 
         this.id = breakDto.getId();
@@ -22,26 +26,26 @@ public class Break {
         this.shiftDate = date;
         this.timesheetId = timesheetId;
         if (null != breakDto.getStart())
-            this.start = new Date(breakDto.getStart() * 1000L);
+            this.start = new EST_TZ_Date(breakDto.getStart() * timestampMilliMultiplier);
         if (null != breakDto.getFinish())
-            this.finish = new Date(breakDto.getFinish() * 1000L);
+            this.finish = new EST_TZ_Date(breakDto.getFinish() * timestampMilliMultiplier);
         this.length = breakDto.getLength();
         this.paid = breakDto.getPaid();
         if (null != breakDto.getUpdatedAt())
-            this.updatedAt = new Date(breakDto.getUpdatedAt() * 1000L);
+            this.updatedAt = new EST_TZ_Date(breakDto.getUpdatedAt() * timestampMilliMultiplier);
     }
-    @Id //@GeneratedValue
+
+    @Id
     private Integer id;
     // foreign key to shift.id
     private Integer shiftId;
     //shift_date (corresponds to ‘date’ in shift object)
     private String shiftDate;
     //sheet_id (corresponds to ‘sheet_id’ in shift object);
-    @Column(name="sheet_id")
     private Integer timesheetId;
-    private Date start;
-    private Date finish;
+    private EST_TZ_Date start;
+    private EST_TZ_Date finish;
     private Integer length;
     private Boolean paid;
-    private Date updatedAt;
+    private EST_TZ_Date updatedAt;
 }

@@ -1,5 +1,6 @@
 package me.dusanov.etl.workshift.etljobapp.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -16,6 +17,7 @@ import java.util.Date;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
+@AllArgsConstructor
 public class Shift extends AEtlModel {
 
     private final static long serialVersionUID = -4472707390104603353L;

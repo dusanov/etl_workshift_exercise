@@ -5,7 +5,9 @@ import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import me.dusanov.etl.workshift.etljobapp.config.EST_TZ_Date;
 import me.dusanov.etl.workshift.etljobapp.dto.ShiftDto;
+import me.dusanov.etl.workshift.etljobapp.etl.WorkShiftJob;
 import me.dusanov.etl.workshift.etljobapp.model.*;
 import me.dusanov.etl.workshift.etljobapp.repo.*;
 import me.dusanov.etl.workshift.etljobapp.service.WorkShiftClient;
@@ -36,6 +38,8 @@ import org.springframework.web.context.WebApplicationContext;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -68,6 +72,9 @@ class EtljobappApplicationTests {
 	@Mock RestTemplate mockRestTemplate;
 	@InjectMocks
 	WorkShiftClient client;// = new WorkShiftClient(extractFailedRepo);
+
+	@Mock WorkShiftClient mockWorkClient;
+	@Mock WorkShiftService mockWorkService;
 
 	@Value("classpath:/shift_data_326872_example.json")
 	Resource jsonFile;
@@ -308,6 +315,47 @@ class EtljobappApplicationTests {
 		assertEquals(0, ((List<Break>)breakRepo.findAll()).size());
 		assertEquals(1, ((List<BatchShiftFailed>)shiftFailedRepo.findAll()).size());
 		assertEquals(1, ((List<Batch>)batchRepo.findAll()).size());
+	}
+
+	@Test
+	public void testWorkShiftJobExecuteIdSelection() throws ParseException {
+
+		List<Shift> mockedAllShifts = Arrays.asList(new Shift[]{new Shift(1,1,1,"",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null),
+																new Shift(2,1,1,"",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null),
+																new Shift(3,1,1,"",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null)});
+
+		List<BatchShiftFailed> mockedFailedShifts = Arrays.asList(new BatchShiftFailed[]{new BatchShiftFailed(4,"1","1","")});
+
+		List<ShiftDto> mockedShiftDtos = Arrays.asList(new ShiftDto[]{new ShiftDto(1,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null),
+																		new ShiftDto(2,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null),
+																		new ShiftDto(3,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null),
+																		new ShiftDto(4,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null),
+																		new ShiftDto(5,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null),
+																		new ShiftDto(6,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null),
+																		new ShiftDto(7,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null)});
+
+		Batch batch = new Batch();
+		Mockito.when(mockWorkService.createNewBatch(Mockito.any()))
+				.thenReturn(batch);
+
+		Mockito.when(mockWorkService.getAll())
+				.thenReturn(mockedAllShifts);
+
+		Mockito.when(mockWorkService.getAllFailed())
+				.thenReturn(mockedFailedShifts);
+
+		Mockito.when(mockWorkClient.getAll(Mockito.any()))
+				.thenReturn(mockedShiftDtos);
+
+		final WorkShiftJob job = new WorkShiftJob(mockWorkService,mockWorkClient);
+
+		job.execute();
+
+		Mockito.verify(mockWorkService).getAll();
+		Mockito.verify(mockWorkService).getAllFailed();
+		Mockito.verify(mockWorkClient).getAll(Mockito.any());
+		Mockito.verify(mockWorkClient).getSome(batch,"5,6,7");
+
 	}
 
 }

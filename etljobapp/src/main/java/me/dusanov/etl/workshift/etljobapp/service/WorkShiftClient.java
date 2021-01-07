@@ -1,6 +1,5 @@
 package me.dusanov.etl.workshift.etljobapp.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -28,7 +27,6 @@ import java.util.List;
 public class WorkShiftClient {
 
     private static final Logger log = LoggerFactory.getLogger(WorkShiftClient.class);
-    private final ObjectMapper mapper = new ObjectMapper();
 
     @Autowired private ExtractFailedRepo extractFailedRepo;
     @Autowired private RestTemplate restTemplate;
@@ -50,7 +48,7 @@ public class WorkShiftClient {
     }
 
     public List<ShiftDto> getSome(Batch batch, String ids){
-        List<ShiftDto> result = new ArrayList<ShiftDto>();
+        List<ShiftDto> result = new ArrayList<>();
         final String url = this.url + "?ids=" + ids;
         try { result = Arrays.asList(restTemplate.getForObject(url, ShiftDto[].class)); }
         catch (RuntimeException e){
@@ -60,7 +58,7 @@ public class WorkShiftClient {
     }
 
     public List<ShiftDto> getAll(Batch batch){
-        List<ShiftDto> result = new ArrayList<ShiftDto>();
+        List<ShiftDto> result = new ArrayList<>();
         final String url = this.url;
         try { result = Arrays.asList(restTemplate.getForObject(url, ShiftDto[].class)); }
         catch (RuntimeException e){

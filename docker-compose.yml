@@ -1,0 +1,19 @@
+version: "3"
+services:
+  endpoint:
+    image: dusanov/etl-workshift-endpoint
+    container_name: etl-workshift-endpoint
+    ports:
+     - "8080:8080"
+  app:
+    image: dusanov/etl-workshift-app
+    container_name: etl-workshift-app
+    ports:
+     - "8090:8090"
+    environment:
+      - "SPRING_PROFILES_ACTIVE=prod"
+  db:
+    image: "redis:alpine"
+    container_name: my-redis
+    ports:
+     - "6379:6379"

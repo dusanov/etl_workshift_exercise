@@ -29,16 +29,21 @@ public class WorkShiftJob implements IEtlJob {
 
         Batch batch = workShiftService.createNewBatch(new Batch());
 
-        List<ShiftDto> allShiftsFromRestEndpoint = clientService.getAll(batch);
-        List<Shift> allShiftsFromLocal = workShiftService.getAll();
-        List<BatchShiftFailed> allShiftsFromLocalFailed = workShiftService.getAllFailed();
+        List<Integer> processedIds = workShiftService.getAll()
+                .stream()
+                .map(Shift::getId)
+                .collect(Collectors.toList());
 
-        List<Integer> allIds = allShiftsFromRestEndpoint.stream().map(ShiftDto::getId).collect(Collectors.toList());
-        List<Integer> processedIds = allShiftsFromLocal.stream().map(Shift::getId).collect(Collectors.toList());
-        List<Integer> failedIds = allShiftsFromLocalFailed.stream().map(BatchShiftFailed::getShiftId).collect(Collectors.toList());
-        //reduce
-        allIds.removeAll(processedIds);
-        allIds.removeAll(failedIds);
+        List<Integer> failedIds = workShiftService.getAllFailed()
+                .stream()
+                .map(BatchShiftFailed::getShiftId)
+                .collect(Collectors.toList());
+
+        List<Integer> allIds = clientService.getAll(batch)
+                .stream()
+                .filter(shiftDto -> !processedIds.contains(shiftDto.getId()) && !failedIds.contains(shiftDto.getId()))
+                .map(ShiftDto::getId)
+                .collect(Collectors.toList());
 
         if (allIds.size() > 0){
 
@@ -51,6 +56,5 @@ public class WorkShiftJob implements IEtlJob {
         }else{
             log.info("nothing to run");
         }
-
     }
 }

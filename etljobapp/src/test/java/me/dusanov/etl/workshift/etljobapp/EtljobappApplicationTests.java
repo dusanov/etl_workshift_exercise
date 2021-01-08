@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import me.dusanov.etl.workshift.etljobapp.config.EST_TZ_Date;
 import me.dusanov.etl.workshift.etljobapp.dto.ShiftDto;
 import me.dusanov.etl.workshift.etljobapp.etl.WorkShiftJob;
 import me.dusanov.etl.workshift.etljobapp.model.*;
@@ -39,7 +38,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 

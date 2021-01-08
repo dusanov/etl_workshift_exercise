@@ -3,13 +3,9 @@ package me.dusanov.etl.workshift.etljobapp.model;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import me.dusanov.etl.workshift.etljobapp.config.EST_TZ_Date;
 import me.dusanov.etl.workshift.etljobapp.dto.BreakDto;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
-
-
-import java.util.Date;
 
 @RedisHash("shifts_breaks")
 @Data

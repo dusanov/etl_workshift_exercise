@@ -49,3 +49,10 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       #KAFKA_ADVERTISED_HOST_NAME: kafka
       #KAFKA_LOG4J_LOGGERS: kafka.controller=ERROR
+  kafka-monitor:
+    image: dusanov/kafka-offset-monitor
+    container_name: kafka-offset-monitor
+    ports:
+     - 9090:9090
+    depends_on:
+     - app

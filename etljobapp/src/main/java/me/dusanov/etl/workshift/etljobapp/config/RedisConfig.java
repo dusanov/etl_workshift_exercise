@@ -5,7 +5,6 @@ import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.connection.RedisPassword;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -34,7 +33,7 @@ public class RedisConfig {
 
         MappingRedisConverter mappingRedisConverter = new MappingRedisConverter(mappingContext, null, referenceResolver,
                 customTypeMapper());
-        mappingRedisConverter.setCustomConversions(redisCustomConversions(new ESTDateToString(),new StringToESTDate()));
+        mappingRedisConverter.setCustomConversions(redisCustomConversions(new ESTDateToStringRedisConverter(),new StringToESTDateRedisConverter()));
         return mappingRedisConverter;
     }
 
@@ -46,8 +45,8 @@ public class RedisConfig {
 
 
     @Bean
-    public RedisCustomConversions redisCustomConversions(ESTDateToString dateToString,
-                                                         StringToESTDate stringToESTDate) {
+    public RedisCustomConversions redisCustomConversions(ESTDateToStringRedisConverter dateToString,
+                                                         StringToESTDateRedisConverter stringToESTDate) {
         return new RedisCustomConversions(Arrays.asList(dateToString, stringToESTDate));
     }
 

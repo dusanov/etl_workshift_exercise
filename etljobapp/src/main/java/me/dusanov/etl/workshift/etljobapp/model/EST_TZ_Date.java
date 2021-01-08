@@ -1,4 +1,4 @@
-package me.dusanov.etl.workshift.etljobapp.config;
+package me.dusanov.etl.workshift.etljobapp.model;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

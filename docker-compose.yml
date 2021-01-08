@@ -5,6 +5,12 @@ services:
     container_name: etl-workshift-endpoint
     ports:
      - "8080:8080"
+    environment:
+     - "SPRING_PROFILES_ACTIVE=docker"
+     - "WORKSHIFT_SERVICE_CREATESHIFTINTERVAL=5"
+     - "WORKSHIFT_SERVICE_NUMOFSHIFTSTOCREATE=50"
+    depends_on:
+     - kafka     
   app:
     image: dusanov/etl-workshift-app
     container_name: etl-workshift-app
@@ -12,8 +18,34 @@ services:
      - "8090:8090"
     environment:
       - "SPRING_PROFILES_ACTIVE=prod"
+    depends_on:
+     - endpoint
+     - db
   db:
     image: "redis:alpine"
     container_name: my-redis
     ports:
      - "6379:6379"
+  zookeeper:
+    image: confluentinc/cp-zookeeper
+    ports:
+     - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+  kafka:
+    image: confluentinc/cp-kafka
+    ports:
+     - 9092:9092
+    depends_on:
+     - zookeeper
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENERS: PLAINTEXT://kafka:9094,OUTSIDE://kafka:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9094,OUTSIDE://kafka:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      #KAFKA_ADVERTISED_HOST_NAME: kafka
+      #KAFKA_LOG4J_LOGGERS: kafka.controller=ERROR

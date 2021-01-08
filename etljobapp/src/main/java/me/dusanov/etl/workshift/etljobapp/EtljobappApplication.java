@@ -24,7 +24,7 @@ public class EtljobappApplication {
 		return args -> {
 			workShiftJob.execute();
 			//TODO:investigate why spring boot gets stuck and doesn't exit
-			System.exit(0);
+			//System.exit(0);
 		};
 	}
 }

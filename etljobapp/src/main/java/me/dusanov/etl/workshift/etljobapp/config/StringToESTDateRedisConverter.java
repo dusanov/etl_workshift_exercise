@@ -1,5 +1,6 @@
 package me.dusanov.etl.workshift.etljobapp.config;
 
+import me.dusanov.etl.workshift.etljobapp.model.EST_TZ_Date;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,9 +12,9 @@ import java.text.ParseException;
 
 @Component
 @ReadingConverter
-public class StringToESTDate implements Converter<byte[], EST_TZ_Date> {
+public class StringToESTDateRedisConverter implements Converter<byte[], EST_TZ_Date> {
 
-    private static final Logger log = LoggerFactory.getLogger(StringToESTDate.class);
+    private static final Logger log = LoggerFactory.getLogger(StringToESTDateRedisConverter.class);
 
     @Override
     public EST_TZ_Date convert(byte @NotNull []attribute) {

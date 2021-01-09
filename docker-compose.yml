@@ -7,10 +7,11 @@ services:
      - "8080:8080"
     environment:
      - "SPRING_PROFILES_ACTIVE=docker"
-     - "WORKSHIFT_SERVICE_CREATESHIFTINTERVAL=5"
-     - "WORKSHIFT_SERVICE_NUMOFSHIFTSTOCREATE=50"
+     - "WORKSHIFT_SERVICE_CREATESHIFTINTERVAL=500"
+     - "WORKSHIFT_SERVICE_NUMOFSHIFTSTOCREATE=1"
     depends_on:
      - kafka     
+     
   app:
     image: dusanov/etl-workshift-app
     container_name: etl-workshift-app
@@ -21,17 +22,20 @@ services:
     depends_on:
      - endpoint
      - db
+     
   db:
     image: "redis:alpine"
     container_name: my-redis
     ports:
      - "6379:6379"
+     
   zookeeper:
     image: confluentinc/cp-zookeeper
     ports:
      - "2181:2181"
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
+      
   kafka:
     image: confluentinc/cp-kafka
     ports:
@@ -49,10 +53,22 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       #KAFKA_ADVERTISED_HOST_NAME: kafka
       #KAFKA_LOG4J_LOGGERS: kafka.controller=ERROR
-  kafka-monitor:
-    image: dusanov/kafka-offset-monitor
-    container_name: kafka-offset-monitor
+      KAFKA_OPTS: -javaagent:/usr/app/jmx_prometheus_javaagent.jar=7071:/usr/app/prom-jmx-agent-config.yml
+    volumes:
+      - ./prometheus/prom-jmx-agent-config.yml:/usr/app/prom-jmx-agent-config.yml
+      - ./prometheus/jmx_prometheus_javaagent-0.6.jar:/usr/app/jmx_prometheus_javaagent.jar
+      
+  prometheus:
+    image: prom/prometheus
     ports:
-     - 9090:9090
-    depends_on:
-     - app
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3000:3000"
+    #user: "104"
+    #volumes:
+    #  - ./grafana:/var/lib/grafana
